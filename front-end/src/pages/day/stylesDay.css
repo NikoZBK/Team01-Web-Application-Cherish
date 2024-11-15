@@ -88,4 +88,15 @@ img {
 #dayJournalEntry {
   letter-spacing: 2px; /* Adjusts space between characters */
   line-height: 1.5; /* Adjusts space between lines */
+
+  justify-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#dayJournalEntry {
+  line-height: 1.5; /* Adjusts space between lines */
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }

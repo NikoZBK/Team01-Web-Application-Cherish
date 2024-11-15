@@ -19,15 +19,17 @@ export class DayComponent extends BaseComponent {
 
   // Methods
   // Removes the specified emotion element from the Emotion Log
-  #removeEmotionEntry(emotion_entry) {
+  #deleteEmotion(emotion_entry) {
     const filteredArr = this.dateData.emotions.filter(
       (e) => e !== emotion_entry
     );
     this.dateData.emotions = filteredArr;
 
     this.#calculateRating();
-    this.#renderEmotions();
-    alert("emotion deleted!");
+    this.update(Events.StoreData, this.dateData);
+
+    alert("Emotion deleted!");
+    this._render(this.dateData);
   }
 
   // Calculates Daily Ranking based on emotions logged also saves any changed to database
@@ -37,7 +39,7 @@ export class DayComponent extends BaseComponent {
     //e.g. highest possible rating is happy with 10 magnitude (2 * 10 = 20), lowest possible rating is Angry with 10 magnitude (-3 * 10 = -30)
     //then we avg together all of these check-in ratings for the day for the final rating
 
-    let totalRating = 0,
+    let sumRate = 0,
       count = 0,
       dailyRating = 0;
 
@@ -50,35 +52,37 @@ export class DayComponent extends BaseComponent {
         let base = 0;
         const magnitude = emotionObj.magnitude;
         switch (emotionObj.emotion_id) {
-          case "happy":
-            base = 2;
+          case "Happy":
+            base = 1;
             break;
-          case "neutral":
-            base = 0;
+          case "Sad":
+            base = 0.33;
             break;
-          case "anxious":
-            base = -1;
+          case "Angry":
+            base = 0.33;
             break;
-          case "sad":
-            base = -2;
+          case "Anxious":
+            base = 0.25;
             break;
-          case "angry":
-            base = -3;
+          case "Disgusted":
+            base = 0.25;
             break;
           default:
-            base = 0;
+            base = -1;
             break;
         }
 
-        const checkInRating = base * magnitude; //the rating for a single check-in
-        totalRating += checkInRating; //add each check-in rating to an accumulating totalRating value
+        const rate = base * magnitude; //the rating for a single check-in
+        sumRate += rate; //add each check-in rating to an accumulating totalRating value
         count++;
       });
     }
 
-    dailyRating = count > 0 ? totalRating / count : 0; //set daily rating to avg of all rating values in that day
+    dailyRating = count > 0 ? sumRate / count : 0; //set daily rating to avg of all rating values in that day
+    dailyRating = parseFloat(dailyRating.toFixed(2)); // Rounds rating to two decimal points
+
     this.dateData["rating"] = dailyRating; //store the daily rating in dateData object
-    EventHub.getInstance().publish(Events.UpdateDatabase, this.dateData);
+    this.update(Events.StoreData, this.dateData);
   }
 
   #renderEmotions() {
@@ -105,6 +109,7 @@ export class DayComponent extends BaseComponent {
         <figure>
           <img id="emotionEntryImage">
         </figure>
+        <button id="delete" type="button">Delete</button>
       `;
 
       // Adds to emotion log
@@ -115,25 +120,26 @@ export class DayComponent extends BaseComponent {
       const rating = document.getElementById("emotionEntryRating");
       const description = document.getElementById("emotionEntryDescription");
       const image = document.getElementById("emotionEntryImage");
-      // const checkInIcon = document.getElementById("check-in-icon");
-
-      // checkInIcon.addEventListener("click", () =>
-      //   document.getElementsByClassName("feature-button")[1].click()
-      // );
+      const deleteButton = document.getElementById("delete");
 
       // Set Data
-      time.textContent = emotion.timestamp;
-      rating.textContent = emotion.magnitude;
-      description.textContent = emotion.description;
+      time.textContent = "Time: " + emotion.timestamp;
+      rating.textContent = "Rating: " + emotion.magnitude;
+      description.textContent = "Description: " + emotion.description;
 
       image.src = `img/${emotion.emotion_id}.gif`;
       image.alt = emotion.emotion_id;
+
+      deleteButton.addEventListener("click", () =>
+        this.#deleteEmotion(emotion)
+      );
 
       // Remove ids (Allows next entry to use ids)
       time.removeAttribute("id");
       rating.removeAttribute("id");
       description.removeAttribute("id");
       image.removeAttribute("id");
+      deleteButton.removeAttribute("id");
 
       // Will need set src
 
@@ -144,7 +150,7 @@ export class DayComponent extends BaseComponent {
   // Inherited Methods from BaseComponent
   _buildHTML() {
     return `
-            <div class="day-container">
+            <div class="container">
                 <div class="day-head-container">
                     <h1>Day Page</h1>
                     <h2 id="dayDate">Hello</h2>
@@ -154,6 +160,7 @@ export class DayComponent extends BaseComponent {
                     <div class="day-body-element" id="dayEmotionLog"></div>
                     <textarea class="day-body-element" id="dayJournalEntry" placeholder="No journal entry" readonly></textarea>
                 </div>
+                <h2 id="dayRating"></h2>
             </div>
         `;
   }
@@ -163,6 +170,7 @@ export class DayComponent extends BaseComponent {
     this.titleDate = document.getElementById("dayDate");
     this.journalEntry = document.getElementById("dayJournalEntry");
     this.emotionLog = document.getElementById("dayEmotionLog");
+    this.dayRating = document.getElementById("dayRating");
   }
 
   _addEventListeners() {
@@ -196,5 +204,13 @@ export class DayComponent extends BaseComponent {
 
     // Added Emotions to Log
     this.#renderEmotions();
+
+    // Calculates Daily Rating
+    this.#calculateRating();
+
+    this.dayRating.textContent =
+      "Day Score: " +
+      (this.dateData.rating === 0 ? "--" : this.dateData.rating) +
+      " / 10";
   }
 }
