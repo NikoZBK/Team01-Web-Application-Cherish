@@ -17,10 +17,12 @@ export class DayComponent extends BaseComponent {
     this.dateData = {};
   }
 
-// Methods
+  // Methods
   // Removes the specified emotion element from the Emotion Log
   #removeEmotionEntry(emotion_entry) {
-    const filteredArr = this.dateData.emotions.filter((e) => e !== emotion_entry);
+    const filteredArr = this.dateData.emotions.filter(
+      (e) => e !== emotion_entry
+    );
     this.dateData.emotions = filteredArr;
 
     this.#calculateRating();
@@ -30,46 +32,48 @@ export class DayComponent extends BaseComponent {
 
   // Calculates Daily Ranking based on emotions logged also saves any changed to database
   #calculateRating() {
-    //each emoji will have a baseline value from -3 to 2 
-    //to get the check-in numeric rating, we will multiply baseline emoji value by magnitude of emotion value 
+    //each emoji will have a baseline value from -3 to 2
+    //to get the check-in numeric rating, we will multiply baseline emoji value by magnitude of emotion value
     //e.g. highest possible rating is happy with 10 magnitude (2 * 10 = 20), lowest possible rating is Angry with 10 magnitude (-3 * 10 = -30)
-    //then we avg together all of these check-in ratings for the day for the final rating 
-    
-    let totalRating = 0, count = 0, dailyRating = 0; 
+    //then we avg together all of these check-in ratings for the day for the final rating
 
-    if(!this.dateData.emotions || this.dateData.emotions.length === 0){
+    let totalRating = 0,
+      count = 0,
+      dailyRating = 0;
+
+    if (!this.dateData.emotions || this.dateData.emotions.length === 0) {
       dailyRating = 0; //if emotions attribute doesn't exist or no emotions stored yet, set to 0 (neutral)
-    }else{
+    } else {
       const emotionsArr = this.dateData.emotions;
 
-        emotionsArr.forEach((emotionObj) => {
-          let base = 0; 
-          const magnitude = emotionObj.magnitude;
-          switch(emotionObj.emotion_id){
-            case 'happy':
-              base = 2;
-              break;
-            case 'neutral':
-              base = 0; 
-              break; 
-            case 'anxious':
-              base = -1
-              break;
-            case 'sad':
-              base = -2;
-              break; 
-            case 'angry':
-              base = -3; 
-              break; 
-            default:
-              base = 0; 
-              break; 
-          }
+      emotionsArr.forEach((emotionObj) => {
+        let base = 0;
+        const magnitude = emotionObj.magnitude;
+        switch (emotionObj.emotion_id) {
+          case "happy":
+            base = 2;
+            break;
+          case "neutral":
+            base = 0;
+            break;
+          case "anxious":
+            base = -1;
+            break;
+          case "sad":
+            base = -2;
+            break;
+          case "angry":
+            base = -3;
+            break;
+          default:
+            base = 0;
+            break;
+        }
 
-          const checkInRating = base * magnitude; //the rating for a single check-in 
-          totalRating += checkInRating; //add each check-in rating to an accumulating totalRating value
-          count++;  
-        });
+        const checkInRating = base * magnitude; //the rating for a single check-in
+        totalRating += checkInRating; //add each check-in rating to an accumulating totalRating value
+        count++;
+      });
     }
 
     dailyRating = count > 0 ? totalRating / count : 0; //set daily rating to avg of all rating values in that day
@@ -78,7 +82,7 @@ export class DayComponent extends BaseComponent {
   }
 
   #renderEmotions() {
-    this.emotionLog.innerHTML = "" // Clears html 
+    this.emotionLog.innerHTML = ""; // Clears html
     if (!this.dateData.emotions) {
       this.emotionLog.textContent = "NO EMOTIONS LOGGED";
       return;
@@ -86,10 +90,11 @@ export class DayComponent extends BaseComponent {
 
     this.dateData.emotions.forEach((emotion) => {
       const emotionEntry = document.createElement("div");
-      emotionEntry.classList.add('day-emotion-entry');
+      emotionEntry.classList.add("day-emotion-entry");
 
       emotionEntry.innerHTML = `
         <section>
+        <img src="./img/check-in-icon.svg" alt="check-in icon" id="check-in-icon" onclick="">
           <ul>
             <li id="emotionEntryTime"></li>
             <li id="emotionEntryRating"></li>
@@ -110,13 +115,18 @@ export class DayComponent extends BaseComponent {
       const rating = document.getElementById("emotionEntryRating");
       const description = document.getElementById("emotionEntryDescription");
       const image = document.getElementById("emotionEntryImage");
-    
+      // const checkInIcon = document.getElementById("check-in-icon");
+
+      // checkInIcon.addEventListener("click", () =>
+      //   document.getElementsByClassName("feature-button")[1].click()
+      // );
+
       // Set Data
       time.textContent = emotion.timestamp;
       rating.textContent = emotion.magnitude;
       description.textContent = emotion.description;
 
-      image.src = `img/${emotion.emotion_id}.gif`
+      image.src = `img/${emotion.emotion_id}.gif`;
       image.alt = emotion.emotion_id;
 
       // Remove ids (Allows next entry to use ids)
@@ -127,8 +137,6 @@ export class DayComponent extends BaseComponent {
 
       // Will need set src
 
-
-  
       // TODO: ADD DELETE BUTTON
     });
   }
@@ -151,23 +159,37 @@ export class DayComponent extends BaseComponent {
   }
 
   _createElementObjs() {
-     // Elements
-     this.titleDate = document.getElementById("dayDate");
-     this.journalEntry =  document.getElementById("dayJournalEntry");
-     this.emotionLog = document.getElementById("dayEmotionLog");
+    // Elements
+    this.titleDate = document.getElementById("dayDate");
+    this.journalEntry = document.getElementById("dayJournalEntry");
+    this.emotionLog = document.getElementById("dayEmotionLog");
   }
 
   _addEventListeners() {
     this.addEvent(Events.LoadDayPage, (data) => this.loadPage(data));
+    document.addEventListener("DOMContentLoaded", () => {
+      document
+        .querySelector("#dayEmotionLog")
+        .addEventListener("click", (e) => {
+          if (e.target.tagName === "IMG") {
+            if (e.target.id === "check-in-icon") {
+              document.getElementsByClassName("feature-button")[1].click();
+            }
+            // TODO: ADD DELETE BUTTON
+            // const emotion_entry = e.target.alt;
+            // this.#removeEmotionEntry(emotion_entry);
+          }
+        });
+    });
   }
 
   // Changes view to Day Page
   _render(data) {
     if (data) this.dateData = data;
 
-    this.dateData['journal'] = this.dateData['journal'] 
-    ? this.dateData.journal
-    : "";
+    this.dateData["journal"] = this.dateData["journal"]
+      ? this.dateData.journal
+      : "";
 
     this.titleDate.textContent = dateFormat(this.dateData.date_id);
     this.journalEntry.textContent = this.dateData.journal;
@@ -176,4 +198,3 @@ export class DayComponent extends BaseComponent {
     this.#renderEmotions();
   }
 }
-
