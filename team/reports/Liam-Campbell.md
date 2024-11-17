@@ -36,3 +36,7 @@
 ### November 15, 2024
   - **Task**: Finish the SummaryPage
   - **Details**: Finished the summary page, fixed any bugs within the javascript file and .css file. Changed the Stats container to update with User day rating and current date.
+
+## November 16-17, 2024
+  - **Task**: Meetings and sequence diagram
+  - **Details**: Created a sequence diagram for the summary page, wrapped up for milestone3, looked for any potential bugs, input my top-3 commits
