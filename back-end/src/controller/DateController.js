@@ -52,15 +52,6 @@ class DateController {
 
   /** Emotion Related Functions */
 
-  // Helper function to compare two emotion objects
-  #isEqualEmotion(emotion1, emotion2) {
-    if (emotion1 === emotion2) return true;
-    if (!emotion1 || !emotion2) return false;
-    return Object.keys(emotion1).every(
-      (key) => emotion1[key] === emotion2[key]
-    );
-  }
-
   // Retrieve a specific day's emotion data
   // Request body should contain the `date_id`
   async getEmotionData(req, res) {
@@ -178,6 +169,15 @@ class DateController {
     } catch (error) {
       return res.status(500).json({ error: "Internal server error." });
     }
+  }
+
+  // Helper function to compare two emotion objects
+  #isEqualEmotion(emotion1, emotion2) {
+    if (emotion1 === emotion2) return true;
+    if (!emotion1 || !emotion2) return false;
+    return Object.keys(emotion1).every(
+      (key) => emotion1[key] === emotion2[key]
+    );
   }
 }
 
