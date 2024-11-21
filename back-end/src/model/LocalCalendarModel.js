@@ -1,4 +1,5 @@
 import { getToday } from "../utils/dateUtils";
+import { Day } from "../utils/Day";
 
 class _LocalCalendarModel {
   constructor() {
@@ -8,18 +9,15 @@ class _LocalCalendarModel {
 
   async create(day = null) {
     if (day === null) {
-      day = {
-        date_id: this.date_id,
-        journal: "",
-        check_in: "",
-        events: [],
-      };
-    } else if (day.date_id === undefined) {
-      day.date_id = this.date_id;
-    } else if (day.date_id === this.date_id) {
+      day = new Day();
+    }
+
+    console.assert(day instanceof Day, "Day should be an instance of Day.");
+
+    if (day.date_id === this.date_id) {
       return;
     }
-    day.date_id = this.date_id;
+
     this.dateData.push(day);
     return day;
   }
@@ -36,10 +34,10 @@ class _LocalCalendarModel {
     this.dateData[index] = day;
     return day;
   }
-
+  // Deletes the specified day from the calendar
   async delete(day = null) {
     if (day === null) {
-      this.dateData = [];
+      // this.dateData = []; Potentially dangerous, may be useful if user wants to clear all data, commented out for now
       return;
     }
 
@@ -48,3 +46,7 @@ class _LocalCalendarModel {
     return day;
   }
 }
+
+const LocalCalendarModel = new _LocalCalendarModel();
+
+export default LocalCalendarModel;
