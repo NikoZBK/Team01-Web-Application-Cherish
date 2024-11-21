@@ -6,22 +6,24 @@ class _LocalCalendarModel {
     this.dateData = [];
     this.date_id = getToday();
   }
-
+  // Creates a new day object and adds it to the calendar
   async create(day = null) {
     if (day === null) {
       day = new Day();
     }
 
-    console.assert(day instanceof Day, "Day should be an instance of Day.");
+    if (!(day instanceof Day)) {
+      throw new Error("Invalid day object. Must be an instance of Day.");
+    }
 
-    if (day.date_id === this.date_id) {
+    if (this.dateData.some((d) => d.date_id === day.date_id)) {
       return;
     }
 
     this.dateData.push(day);
     return day;
   }
-
+  // Returns the specified day object from the calendar
   async read(id = null) {
     if (id) {
       return this.dateData.find((day) => day.date_id === id);
@@ -29,11 +31,13 @@ class _LocalCalendarModel {
     return this.dateData;
   }
 
+  // Updates the specified day in the calendar
   async update(day) {
     const index = this.dateData.findIndex((d) => d.date_id === day.date_id);
     this.dateData[index] = day;
     return day;
   }
+
   // Deletes the specified day from the calendar
   async delete(day = null) {
     if (day === null) {

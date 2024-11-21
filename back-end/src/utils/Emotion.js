@@ -33,7 +33,7 @@ class Emotion {
   }
 
   setMagnitude(magnitude) {
-    if (magnitude >= 1 && magnitude <= 10) {
+    if (!isNaN(magnitude) && magnitude >= 1 && magnitude <= 10) {
       this.magnitude = magnitude;
     } else {
       throw new Error(
