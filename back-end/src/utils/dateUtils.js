@@ -54,4 +54,4 @@ function getDayOfWeekWord(date = new Date()) {
   return days[dayOfWeek];
 }
 
-export { getToday };
+export { getToday, convertDateToID, getDayOfWeekWord };
