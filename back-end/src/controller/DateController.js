@@ -1,17 +1,18 @@
 import ModelFactory from "../model/ModelFactory.js";
 
+// Property constants
+const ID = "date_id",
+  EMOTIONS = "emotions",
+  EMOTION = "emotion";
+
 class DateController {
   constructor() {
     ModelFactory.getModel().then((model) => {
       this.model = model;
     });
   }
-  // Helper function to compare two emotion objects
-  #isEqualEmotion(emotion1, emotion2) {
-    return Object.keys(emotion1).every(
-      (key) => emotion1[key] === emotion2[key]
-    );
-  }
+
+  /** Day Related Functions */
 
   // Retrieve all user's data
   // Request not used
@@ -26,61 +27,78 @@ class DateController {
   // Retrieve a specific day's data
   // Request query parameters should be the date_id
   async getDateData(req, res) {
-    const { id } = req.params;
-    const dateData = await this.model.read(id);
+    const data = req.body;
+    const dateData = await this.model.read(data[ID]);
     if (!dateData) {
       res.status(404).send("Date not found.");
       return;
     }
     res.json(dateData);
   }
+
+  /** Emotion Related Functions */
+
+  // Helper function to compare two emotion objects
+  #isEqualEmotion(emotion1, emotion2) {
+    return Object.keys(emotion1).every(
+      (key) => emotion1[key] === emotion2[key]
+    );
+  }
   // Retrieve a specific day's emotion data
   // Request query parameters should be the date_id
   async getEmotionData(req, res) {
-    const { id } = req.params;
-    const dateData = await this.model.read(id);
+    const data = req.body;
+    const dateData = await this.model.read(data[ID]);
     if (!dateData) {
       res.status(404).send("Date not found.");
       return;
     }
-    res.json(dateData.emotions);
+    res.json(dateData[EMOTIONS]);
   }
   // Retrieve a specific emotion log from a specific day
   // Request query parameters should be the date_id and the emotion object to retrieve
   async getEmotionLog(req, res) {
-    const { id, emo } = req.params;
-    const dateData = await this.model.read(id);
+    const data = req.body;
+    const dateData = await this.model.read(data[ID]);
     if (!dateData) {
       res.status(404).send("Date not found.");
       return;
     }
-    const emotion = dateData.emotions.find((e) => this.#isEqualEmotion(emo, e));
+    const emotion = dateData[EMOTIONS].find((e) =>
+      this.#isEqualEmotion(data[EMOTION], e)
+    );
     res.json(emotion);
   }
   // Remove a specific emotion log from a specific day
   // Request query parameters should be the date_id and the emotion object to remove
   async removeEmotionLog(req, res) {
-    const { id, emo } = req.params;
-    const dateData = await this.model.read(id);
+    const data = req.body;
+    const dateData = await this.model.read(data[ID]);
     if (!dateData) {
       res.status(404).send("Date not found.");
       return;
     }
-    const index = dateData.emotions.findIndex((e) => {
-      return this.#isEqualEmotion(emo, e);
+    const index = dateData[EMOTIONS].findIndex((e) => {
+      return this.#isEqualEmotion(data[EMOTION], e);
     });
-    dateData.emotions.splice(index, 1);
-    await this.model.update(dateData);
-    res.json(dateData);
+    if (index !== -1) {
+      dateData[EMOTIONS].splice(index, 1);
+      await this.model.update(dateData);
+      res.json(dateData);
+    } else {
+      res.status(404).send("Emotion not found.");
+    }
   }
   // Add a new emotion log to a specific day
   // Request query parameters should be the date_id and the emotion object to add
   async addEmotionLog(req, res) {
-    const { id, emo } = req.params;
-    const dateData = await this.model.read(id);
+    const data = req.body;
+    const dateData = await this.model.read(data[ID]);
     if (dateData) {
-      if (!dateData.emotions.some((e) => this.#isEqualEmotion(emo, e))) {
-        dateData.emotions.push(emo);
+      if (
+        !dateData[EMOTIONS].some((e) => this.#isEqualEmotion(data[EMOTION], e))
+      ) {
+        dateData[EMOTIONS].push(data[EMOTION]);
         await this.model.update(dateData);
         res.json(dateData);
       } else {
@@ -90,4 +108,26 @@ class DateController {
       res.status(404).send("Date not found.");
     }
   }
+  // Edit a specific emotion log from a specific day
+  // Request body should contain the date_id and the emotion object to edit
+  async editEmotionLog(req, res) {
+    const data = req.body;
+    const dateData = await this.model.read(data[ID]);
+    if (!dateData) {
+      res.status(404).send("Date not found.");
+      return;
+    }
+    const index = dateData[EMOTIONS].findIndex((e) => {
+      return this.#isEqualEmotion(data[EMOTION], e);
+    });
+    if (index !== -1) {
+      dateData[EMOTIONS][index] = data[EMOTION];
+      await this.model.update(dateData);
+      res.json(dateData);
+    } else {
+      res.status(404).send("Emotion not found.");
+    }
+  }
 }
+
+export default DateController;
