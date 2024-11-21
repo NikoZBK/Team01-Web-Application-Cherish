@@ -31,7 +31,7 @@ class DateController {
       }
       return res.json(dateData); // return all the data
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -46,7 +46,7 @@ class DateController {
       }
       return res.json(dateData);
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -63,7 +63,7 @@ class DateController {
       }
       return res.json(dateData[EMOTIONS] || []); // return the emotion data
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -84,7 +84,7 @@ class DateController {
       );
       return res.json(emotion); // return the emotion log
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -111,7 +111,7 @@ class DateController {
         return res.status(404).json({ error: "Emotion not found." });
       }
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -140,7 +140,7 @@ class DateController {
         return res.status(404).json({ error: "No data found." });
       }
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -167,7 +167,7 @@ class DateController {
         return res.status(404).json({ error: "Emotion not found." });
       }
     } catch (error) {
-      return res.status(500).json({ error: "Internal server error." });
+      return res.status(500).json({ error: error.message });
     }
   }
 
