@@ -15,6 +15,8 @@ class DateController {
     ModelFactory.getModel()
       .then((model) => {
         this.model = model;
+        console.log("Model initialized successfully:", model);
+
       })
       .catch((err) => console.error("Error initializing model: ", err));
   }
@@ -40,12 +42,19 @@ class DateController {
   async getDateData(req, res) {
     try {
       const data = req.body;
+      console.log("Request body:", data);
+      
+
       const dateData = await this.model.read(data[ID]);
+      console.log("Data retrieved from model:", dateData);
+
       if (!dateData) {
+        console.log("No data found for date_id:", data[ID]);
         return res.status(404).json({ error: "No data found." });
       }
       return res.json(dateData);
     } catch (error) {
+      console.error("Error in getDateData:", error.message);
       return res.status(500).json({ error: error.message });
     }
   }
@@ -93,24 +102,35 @@ class DateController {
   async removeEmotionLog(req, res) {
     try {
       const data = req.body;
+      console.log("Request body:", data);
+
       if (!data[EMOTION]) {
+        console.log("Emotion object is missing from request body.");
         return res.status(400).json({ error: "Emotion object is required." });
       }
       const dateData = await this.model.read(data[ID]);
+      console.log("Data retrieved for date_id:", dateData);
+
       if (!dateData) {
+        console.log("No data found for date_id:", data[ID]);
         return res.status(404).json({ error: "No data found." });
       }
       const index = dateData[EMOTIONS]?.findIndex((e) => {
         return this.#isEqualEmotion(data[EMOTION], e);
       });
+
+      console.log("Index of emotion to remove:", index);
       if (index !== -1) {
         dateData[EMOTIONS].splice(index, 1);
         await this.model.update(dateData);
+        console.log("Emotion removed successfully. Updated data:", dateData);
         return res.json(dateData); // return the updated date data
       } else {
+        console.log("Emotion not found:", data[EMOTION]);
         return res.status(404).json({ error: "Emotion not found." });
       }
     } catch (error) {
+      console.error("Error in removeEmotionLog:", error.message);
       return res.status(500).json({ error: error.message });
     }
   }
@@ -120,7 +140,10 @@ class DateController {
   async addEmotionLog(req, res) {
     try {
       const data = req.body;
+      console.log("Request body:", data);
       if (!data[EMOTION]) {
+        console.log("Emotion object is missing from request body.");
+
         return res.status(400).json({ error: "Emotion object is required." });
       }
       const dateData = await this.model.read(data[ID]);
