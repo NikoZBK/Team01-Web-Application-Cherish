@@ -41,7 +41,7 @@ class _LocalDayModel {
   // Deletes the specified day from the calendar
   async delete(day = null) {
     if (day === null) {
-      // this.dateData = []; Potentially dangerous, may be useful if user wants to clear all data, commented out for now
+      this.dateData = [];
       return;
     }
 
