@@ -1,7 +1,7 @@
 import { getToday } from "../utils/dateUtils";
 import { Day } from "../utils/Day";
 
-class _LocalCalendarModel {
+class _LocalDayModel {
   constructor() {
     this.dateData = [];
     this.date_id = getToday();
@@ -51,6 +51,6 @@ class _LocalCalendarModel {
   }
 }
 
-const LocalCalendarModel = new _LocalCalendarModel();
+const LocalCalendarModel = new _LocalDayModel();
 
 export default LocalCalendarModel;
