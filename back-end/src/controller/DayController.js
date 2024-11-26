@@ -10,13 +10,12 @@ const ID = "date_id",
 // *       The emotion related functions need to be passed the `date_id` and the `emotion` object in the request body *
 // ********************************************************************************************************************
 
-class DateController {
+class DayController {
   constructor() {
     ModelFactory.getModel()
       .then((model) => {
         this.model = model;
         console.log("Model initialized successfully:", model);
-
       })
       .catch((err) => console.error("Error initializing model: ", err));
   }
@@ -43,7 +42,6 @@ class DateController {
     try {
       const data = req.body;
       console.log("Request body:", data);
-      
 
       const dateData = await this.model.read(data[ID]);
       console.log("Data retrieved from model:", dateData);
@@ -55,6 +53,57 @@ class DateController {
       return res.json(dateData);
     } catch (error) {
       console.error("Error in getDateData:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Add a new day's data
+  // Request body should contain the `date_id`
+  async addDateData(req, res) {
+    try {
+      const data = req.body;
+      console.log("Request body:", data);
+
+      const dateData = await this.model.create(data);
+      console.log("Data created successfully:", dateData);
+
+      return res.json(dateData);
+    } catch (error) {
+      console.error("Error in addDateData:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Remove a specific day's data
+  // Request body should contain the `date_id`
+  async removeDateData(req, res) {
+    try {
+      const data = req.body;
+      console.log("Request body:", data);
+
+      const dateData = await this.model.read(data[ID]);
+      console.log("Data retrieved for date_id:", dateData);
+
+      if (!dateData) {
+        console.log("No data found for date_id:", data[ID]);
+        return res.status(404).json({ error: "No data found." });
+      }
+      await this.model.delete(dateData);
+      console.log("Data removed successfully:", dateData);
+
+      return res.json(dateData);
+    } catch (error) {
+      console.error("Error in removeDateData:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Remove all day data
+  async clearDateData(req, res) {
+    try {
+      await this.model.delete();
+      return res.json({});
+    } catch (error) {
       return res.status(500).json({ error: error.message });
     }
   }
@@ -204,4 +253,4 @@ class DateController {
   }
 }
 
-export default DateController;
+export default DayController;

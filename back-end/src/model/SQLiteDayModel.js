@@ -1,5 +1,4 @@
 import { Sequelize, DataTypes } from "sequelize";
-import { Emotion } from "./Emotion";
 
 // Initialize a new Sequelize instance with SQLite
 const sequelize = new Sequelize({
@@ -22,7 +21,7 @@ const Day = sequelize.define("Day", {
     allowNull: true,
   },
 });
-
+// Define the Emotion model
 const Emotion = sequelize.define("Emotion", {
   emotion_id: {
     type: DataTypes.STRING,
@@ -44,6 +43,7 @@ const Emotion = sequelize.define("Emotion", {
 
 // Define the relationship between Day and Emotion
 Day.belongsToMany(Emotion, { through: "DayEmotion" });
+// Each emotion should be associated with only one day
 Emotion.hasOne(Day);
 
 class _SQLiteDayModel {

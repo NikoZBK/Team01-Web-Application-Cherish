@@ -7,6 +7,7 @@ class _LocalDayModel {
     this.date_id = getToday();
   }
   // Creates a new day object and adds it to the calendar
+  // TODO: Make compatible with an emotion
   async create(day = null) {
     if (day === null) {
       day = new Day();
