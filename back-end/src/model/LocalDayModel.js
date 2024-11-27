@@ -1,5 +1,5 @@
-import { getToday } from "../utils/dateUtils";
-import { Day } from "../utils/Day";
+import { getToday } from "../../front-end/src/utils/dateUtils";
+import { Day } from "../../front-end/src/utils/Day";
 
 class _LocalDayModel {
   constructor() {

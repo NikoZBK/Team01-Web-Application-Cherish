@@ -5,7 +5,8 @@ import { CheckInComponent } from "./pages/check-in/CheckInComponent.js";
 import { SummaryComponent } from "./pages/summary/SummaryComponent.js";
 import { EventHub } from "./eventhub/EventHub.js";
 import { Events } from "./eventhub/Events.js";
-import { DatabaseService } from "./services/DatabaseService.js";
+import LocalCherishRepoService from "./services/LocalCherishRepoService.js";
+import { getToday } from "./utils/dateUtils.js";
 
 const hub = EventHub.getInstance();
 
@@ -25,14 +26,10 @@ hub.subscribe(Events.InitDataFailed, () =>
   console.log("Failed to initialize database")
 );
 
-const today = new Date();
+const id = getToday();
 
-const dateArr = [today.getMonth() + 1, today.getDate(), today.getFullYear()];
-
-const id = dateArr.join("-");
-
-export const DATABASE = new DatabaseService();
-const calendar = new CalendarComponent(today);
+export const DATABASE = new LocalCherishRepoService();
+const calendar = new CalendarComponent(new Date());
 const day = new DayComponent();
 const journal = new JournalComponent();
 const checkIn = new CheckInComponent();
