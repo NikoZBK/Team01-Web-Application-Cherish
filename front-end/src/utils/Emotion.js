@@ -1,3 +1,4 @@
+import { getToday } from "./dateUtils.js";
 class Emotion {
   #emotion_types = this.#getListOfEmotions();
 
@@ -7,21 +8,32 @@ class Emotion {
   }
 
   /*
+        date_id (string): A unique identifier for the date. (Format: MM-DD-YYYY) 
         emotion_id (string): A unique identifier for the emotion. (Emotions: Happy, Sad, Angry, Anxious, Disgusted, Neutral)
         magnitude (number): A ranking system on a scale of 1 to 10 on how strong the emotion is.
         description (string): An explanation to why a user feels the emotion (Not required, can be left empty).
         timestamp (string): The time (hour:minute) an emotion was logged.
     */
   constructor(
+    date_id = getToday(),
     emotion_id = "Neutral",
     magnitude = 5,
     description = "",
     timestamp = ""
   ) {
-    this.emotion_id = emotion_id;
-    this.magnitude = magnitude;
-    this.description = description;
-    this.timestamp = timestamp;
+    this.setDateId(date_id);
+    this.setEmotionId(emotion_id);
+    this.setMagnitude(magnitude);
+    this.setDescription(description);
+    this.setTimestamp(timestamp);
+  }
+
+  setDateId(date_id) {
+    const datePattern = /^\d{2}-\d?\d-\d{4}$/;
+    if (!datePattern.test(date_id)) {
+      throw new Error("Invalid date format. Please use MM-(D)D-YYYY.");
+    }
+    this.date_id = date_id;
   }
 
   setEmotionId(emotion_id) {
@@ -64,3 +76,5 @@ class Emotion {
     }
   }
 }
+
+export { Emotion };
