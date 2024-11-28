@@ -11,18 +11,18 @@ class DayRoutes {
     // Define the routes and connect them to controller methods
 
     // DESCRIPTION
-    //   Get all days. This endpoint returns an object with a 'days' property
+    //   Get all days. This endpoint returns an object with a 'calendar' property
     //   containing an array of days.
     // REQUEST
-    //   GET /days
+    //   GET /calendar
     // RESPONSE
     //   {
-    //     "days": [ ... ]
+    //     "calendar": [ ... ]
     //   }
     // STATUS CODES
     //   200 - OK: The request was successful
     //   500 - Internal Server Error: The server encountered an error
-    this.router.get("/days", async (req, res) => {
+    this.router.get("/calendar", async (req, res) => {
       await DayController.getAllDateData(req, res);
     });
 
@@ -30,39 +30,39 @@ class DayRoutes {
     //   Add a new Day. This endpoint creates a new Day with the provided
     //   date_id and returns the created day.
     // REQUEST
-    //   POST /day
+    //   POST /calendar/days
     //   {
-    //     "date_id": "MM-DD-YY"
-    //     "emotions": [ ... ],
+    //     "date_id": "11-26-24"
+    //     "emotions": [],
     //     "rating": 5,
     //     "journal": ""
     //   }
     // RESPONSE
     //   {
-    //      "date_id": 11-26-24,
+    //      "date_id": "11-26-24",
     //      "emotions": [],
     //      "rating": 5,
     //      "journal": ""
     //   }
     // STATUS CODES
-    //   200 - OK: The task was created successfully
+    //   200 - OK: The day was created and stored successfully
     //   400 - Bad Request: The request was invalid or missing required data
     //   500 - Internal Server Error: The server encountered an error
-    this.router.post("/days", async (req, res) => {
+    this.router.post("/calendar/days", async (req, res) => {
       await DayController.create(req, res);
     });
 
     // DESCRIPTION
-    //   Clear all days. This endpoint deletes all days and returns an empty
+    //   Clear all days/the calendar. This endpoint deletes all days and returns an empty
     //   response. This operation cannot be undone.
     // REQUEST
-    //   DELETE /days
+    //   DELETE /calendar
     // RESPONSE
     //   { }
     // STATUS CODES
     //   200 - OK: The tasks were cleared successfully
     //   500 - Internal Server Error: The server encountered an error
-    this.router.delete("/days", async (req, res) => {
+    this.router.delete("/calendar", async (req, res) => {
       await DayController.clearDateData(req, res);
     });
   }
