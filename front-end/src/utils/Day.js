@@ -1,4 +1,4 @@
-import { getToday } from "./dateUtils";
+import { getToday } from "./dateUtils.js";
 
 class Day {
   constructor(date_id = getToday(), emotions = [], rating = 0, journal = "") {

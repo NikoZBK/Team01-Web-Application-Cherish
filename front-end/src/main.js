@@ -5,8 +5,8 @@ import { CheckInComponent } from "./pages/check-in/CheckInComponent.js";
 import { SummaryComponent } from "./pages/summary/SummaryComponent.js";
 import { EventHub } from "./eventhub/EventHub.js";
 import { Events } from "./eventhub/Events.js";
-import LocalCherishRepoService from "./services/LocalCherishRepoService.js";
 import { getToday } from "./utils/dateUtils.js";
+import LocalCherishRepoService from "./services/LocalCherishRepoService.js";
 
 const hub = EventHub.getInstance();
 

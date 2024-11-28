@@ -1,4 +1,5 @@
 import { Events } from "../eventhub/Events.js";
+import { Day } from "../utils/Day.js";
 import Service from "./Service.js";
 
 export class LocalCherishRepoService extends Service {
@@ -12,7 +13,6 @@ export class LocalCherishRepoService extends Service {
     this.initDB()
       .then(() => {
         this.addSubscriptions();
-        console.log("Database events initialized");
       })
       .catch((error) => {
         console.error(error);
@@ -21,8 +21,10 @@ export class LocalCherishRepoService extends Service {
 
   addSubscriptions() {
     this.addEvent(Events.StoreData, (data) => this.storeDay(data));
+    this.addEvent(Events.RemoveData, (id) => this.removeDay(id));
     this.addEvent(Events.RestoreData, (id) => this.restoreDay(id));
     this.addEvent(Events.ClearData, () => this.clearDatabase());
+    this.addEvent(Events.UpdateData, (data) => this.updateDay(data));
   }
 
   async initDB() {
@@ -56,15 +58,18 @@ export class LocalCherishRepoService extends Service {
       const request = objectStore.get(key);
 
       request.onsuccess = (event) => {
-        // If result is undefined creates new date object
-
-        // const obj = event.target.result
-        //   ? event.target.result
-        //   : { date_id: key };
-        resolve(event.target.result || { date_id: key });
+        const data = event.target.result;
+        if (!data || Object.keys(data).length === 0) {
+          this.update(Events.RestoredDataSuccess);
+          resolve(new Day(key));
+        } else {
+          this.update(Events.RestoredDataSuccess);
+          resolve(event.target.result);
+        }
       };
 
-      request.onerror = () => {
+      request.onerror = (event) => {
+        const data = event.target.result;
         this.update(Events.RestoredDataFailed);
         reject("Failed to retrieve data");
       };
@@ -77,7 +82,7 @@ export class LocalCherishRepoService extends Service {
     const objectStore = transaction.objectStore(this.storeName);
 
     return new Promise((resolve, reject) => {
-      const request = objectStore.put(data); // Updates entry if already exists, adds it otherwise
+      const request = objectStore.put(data);
       request.onsuccess = () => {
         this.update(Events.StoredDataSuccess);
         resolve("Data Stored Successfully");
@@ -86,6 +91,25 @@ export class LocalCherishRepoService extends Service {
       request.onerror = () => {
         this.update(Events.StoredDataFailed);
         reject("Failed to store data");
+      };
+    });
+  }
+
+  async removeDay(id) {
+    const transaction = this.db.transaction([this.storeName], "readwrite");
+    const objectStore = transaction.objectStore(this.storeName);
+
+    return new Promise((resolve, reject) => {
+      const request = objectStore.delete(id);
+
+      request.onsuccess = () => {
+        this.update(Events.RemovedDataSuccess);
+        resolve("Data Removed Successfully");
+      };
+
+      request.onerror = () => {
+        this.update(Events.RemovedDataFailed);
+        reject("Failed to remove data");
       };
     });
   }
@@ -109,17 +133,33 @@ export class LocalCherishRepoService extends Service {
   // Clears all Saved Data from the database
   async clearDatabase() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(this.dbName);
+      if (this.db) {
+        const dbName = this.db.name;
+        const openConnections = this.db._rawDatabase.connections;
 
-      request.onsuccess = () => {
-        this.update(Events.ClearedDataSuccess);
-        resolve("All Data Cleared!");
-      };
+        // Close all open connections
+        openConnections.forEach((connection) => connection.close());
 
-      request.onerror = () => {
+        const request = indexedDB.deleteDatabase(dbName);
+
+        request.onsuccess = () => {
+          this.update(Events.ClearedDataSuccess);
+          resolve("Data Cleared Successfully");
+        };
+
+        request.onerror = () => {
+          this.update(Events.ClearedDataFailed);
+          reject("Failed to Clear Data");
+        };
+
+        request.onblocked = () => {
+          this.update(Events.ClearedDataFailed);
+          reject("Database deletion blocked");
+        };
+      } else {
         this.update(Events.ClearedDataFailed);
-        reject("Failed to Clear Data");
-      };
+        reject("No database connection to clear");
+      }
     });
   }
 }
