@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start-server": "http-server ./source -p 3000",
-    "test": "jest"
+    "test": "jasmine"
   },
   "license": "COMPSCI 326",
   "description": "The Cherish App",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.48.1",
+    "jasmine": "^5.4.0",
     "jest": "^29.7.0"
   }
 }
