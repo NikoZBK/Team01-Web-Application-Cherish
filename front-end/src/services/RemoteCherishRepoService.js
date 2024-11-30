@@ -4,10 +4,10 @@ import { Events } from "../eventhub/Events.js";
 export class RemoteCherishRepoService extends Service {
   constructor() {
     super();
-    this.#initCalendar();
+    this._initCalendar();
   }
   // Add subscriptions to the event hub
-  // TODO: Move these to a helper function (currently duplicated in LocalCherishRepoService)
+  // TODO: Move these to a helper function (currently duplicated in IDBCherishRepoService)
   addSubscriptions() {
     this.addEvent(Events.StoreData, (data) => this.storeDay(data));
     this.addEvent(Events.RemoveData, (id) => this.removeDay(id));
@@ -16,64 +16,57 @@ export class RemoteCherishRepoService extends Service {
     this.addEvent(Events.UpdateData, (data) => this.updateDay(data));
   }
 
-  async #initCalendar() {
-    const data = fetch("/calendar")
-      .then((response) => response.json())
-      .catch((err) => {
-        this.update(Events.InitDataFailed, err);
-        throw new Error("Failed to fetch calendar: " + err);
-      });
-
-    this.update(Events.InitDataSuccess, data);
+  async _initCalendar() {
+    try {
+      const response = await fetch("/v1/calendar");
+      const data = await response.json();
+      this.update(Events.InitDataSuccess, data);
+    } catch (err) {
+      this.update(Events.InitDataFailed, err);
+      throw new Error("Failed to fetch calendar: " + err);
+    }
   }
 
   async storeDay(data) {
-    const response = fetch("/calendar/days", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        this.update(Events.StoredDataSuccess);
-        return response.json();
-      })
-      .catch((err) => {
-        this.update(Events.StoredDataFailed, err);
-        throw new Error("Failed to store day: " + err);
+    try {
+      const response = await fetch("/v1/calendar/days", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       });
-
-    this.update(Events.StoredDataSuccess, response);
+      this.update(Events.StoredDataSuccess);
+      return await response.json();
+    } catch (err) {
+      this.update(Events.StoredDataFailed, err);
+      throw new Error("Failed to store day: " + err);
+    }
   }
 
   async removeDay(id) {
-    const response = fetch(`/calendar/days/${id}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        this.update(Events.RemovedDataSuccess);
-        return response.json();
-      })
-      .catch((err) => {
-        this.update(Events.RemovedDataFailed, err);
-        throw new Error("Failed to remove day: " + err);
+    try {
+      const response = await fetch(`/v1/calendar/days/${id}`, {
+        method: "DELETE",
       });
-
-    this.update(Events.RemovedDataSuccess, response);
+      this.update(Events.RemovedDataSuccess);
+      return await response.json();
+    } catch (err) {
+      this.update(Events.RemovedDataFailed, err);
+      throw new Error("Failed to remove day: " + err);
+    }
   }
 
   async clearCalendar() {
-    const response = fetch("/calendar", {
-      method: "DELETE",
-    })
-      .then((response) => {
-        this.update(Events.ClearedDataSuccess);
-        return response.json();
-      })
-      .catch((err) => {
-        this.update(Events.ClearedDataFailed, err);
-        throw new Error("Failed to clear calendar: " + err);
+    try {
+      const response = await fetch("/v1/calendar", {
+        method: "DELETE",
       });
+      this.update(Events.ClearedDataSuccess);
+      return await response.json();
+    } catch (err) {
+      this.update(Events.ClearedDataFailed, err);
+      throw new Error("Failed to clear calendar: " + err);
+    }
   }
 }

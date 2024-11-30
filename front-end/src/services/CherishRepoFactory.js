@@ -1,7 +1,6 @@
-import { LocalCherishRepoService } from "./LocalCherishRepoService";
-import { RemoteCherishRepoService } from "./RemoteCherishRepoService";
-import { MockRemoteCherishRepoService } from "./MockRemoteCherishRepoService";
-
+import { IDBCherishRepoService } from "../services/IDBCherishRepoService.js";
+import { RemoteCherishRepoService } from "../services/RemoteCherishRepoService.js";
+import { LocalCherishRepoService } from "../services/LocalCherishRepoService.js";
 /**
  * Factory class for creating CherishRepoService services.
  *
@@ -21,15 +20,15 @@ export class CherishRepoFactory {
    *
    * @param {string} [repoType='local'] - The type of repository service to
    * create. Can be 'local' or 'remote'.
-   * @returns {LocalCherishRepoService|MockRemoteCherishRepoService|RemoteCherishRepoService} An instance
+   * @returns {LocalCherishRepoService|IDBCherishRepoService|RemoteCherishRepoService} An instance
    * of the appropriate task repository service.
    * @throws Will throw an error if the repository type is not recognized.
    */
   static get(repoType = "local") {
     if (repoType === "local") {
       return new LocalCherishRepoService();
-    } else if (repoType === "mock") {
-      return new MockRemoteCherishRepoService();
+    } else if (repoType === "idb") {
+      return new IDBCherishRepoService();
     } else if (repoType === "remote") {
       return new RemoteCherishRepoService();
     } else {
