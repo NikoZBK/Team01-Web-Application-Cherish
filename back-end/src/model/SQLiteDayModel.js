@@ -23,6 +23,11 @@ const Day = sequelize.define("Day", {
 });
 // Define the Emotion model
 const Emotion = sequelize.define("Emotion", {
+  date_id: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    primaryKey: true,
+  },
   emotion_id: {
     type: DataTypes.STRING,
     allowNull: false,

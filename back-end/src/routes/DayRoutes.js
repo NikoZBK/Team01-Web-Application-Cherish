@@ -22,7 +22,7 @@ class DayRoutes {
     // STATUS CODES
     //   200 - OK: The request was successful
     //   500 - Internal Server Error: The server encountered an error
-    this.router.get("/calendar", async (req, res) => {
+    this.router.get("/v1/calendar", async (req, res) => {
       await DayController.getAllDateData(req, res);
     });
 
@@ -48,7 +48,7 @@ class DayRoutes {
     //   200 - OK: The day was created and stored successfully
     //   400 - Bad Request: The request was invalid or missing required data
     //   500 - Internal Server Error: The server encountered an error
-    this.router.post("/calendar/days", async (req, res) => {
+    this.router.post("/v1/calendar/days", async (req, res) => {
       await DayController.create(req, res);
     });
 
@@ -62,7 +62,7 @@ class DayRoutes {
     // STATUS CODES
     //   200 - OK: The tasks were cleared successfully
     //   500 - Internal Server Error: The server encountered an error
-    this.router.delete("/calendar", async (req, res) => {
+    this.router.delete("/v1/calendar", async (req, res) => {
       await DayController.clearDateData(req, res);
     });
   }

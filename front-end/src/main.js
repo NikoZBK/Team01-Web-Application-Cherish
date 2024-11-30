@@ -6,7 +6,7 @@ import { SummaryComponent } from "./pages/summary/SummaryComponent.js";
 import { EventHub } from "./eventhub/EventHub.js";
 import { Events } from "./eventhub/Events.js";
 import { getToday } from "./utils/dateUtils.js";
-import LocalCherishRepoService from "./services/LocalCherishRepoService.js";
+import IDBCherishRepoService from "./services/IDBCherishRepoService.js";
 
 const hub = EventHub.getInstance();
 
@@ -28,7 +28,7 @@ hub.subscribe(Events.InitDataFailed, () =>
 
 const id = getToday();
 
-export const DATABASE = new LocalCherishRepoService();
+export const DATABASE = new IDBCherishRepoService();
 const calendar = new CalendarComponent(new Date());
 const day = new DayComponent();
 const journal = new JournalComponent();

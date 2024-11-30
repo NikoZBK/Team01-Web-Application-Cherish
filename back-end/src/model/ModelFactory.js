@@ -1,12 +1,16 @@
+import LocalDayModel from "./LocalDayModel.js";
+import SQLiteDayModel from "./SQLiteDayModel.js";
+
 class _ModelFactory {
   async getModel(model = "local") {
     switch (model) {
       case "local":
-        return new LocalModel();
+        return LocalDayModel;
       case "sqlite":
-        return new SqLiteModel();
+        return SQLiteDayModel;
       case "sqlite-fresh":
-        await SqLiteModel.init(true);
+        await SQLiteDayModel.init(true);
+        return SQLiteDayModel;
       default:
         throw new Error("Model not found");
     }

@@ -1,5 +1,6 @@
-import { getToday } from "../../front-end/src/utils/dateUtils";
-import { Day } from "../../front-end/src/utils/Day";
+import { getToday } from "../../../front-end/src/utils/dateUtils.js";
+import { Day } from "../../../front-end/src/utils/Day.js";
+import { Emotion } from "../../../front-end/src/utils/Emotion.js";
 
 class _LocalDayModel {
   constructor() {
@@ -7,22 +8,32 @@ class _LocalDayModel {
     this.date_id = getToday();
   }
   // Creates a new day object and adds it to the calendar
-  // TODO: Make compatible with an emotion
-  async create(day = null) {
-    if (day === null) {
-      day = new Day();
+  async create(data = null) {
+    if (data === null) {
+      // default to create a new day
+      data = new Day();
+    } else if (!(data instanceof Day) && !(data instanceof Emotion)) {
+      throw new Error(
+        "Invalid data object. Must be an instance of Day or Emotion."
+      );
     }
 
-    if (!(day instanceof Day)) {
-      throw new Error("Invalid day object. Must be an instance of Day.");
+    if (data instanceof Day) {
+      if (this.read(data.date_id)) {
+        return;
+      } else {
+        this.dateData.push(data);
+        return data;
+      }
+    } else if (data instanceof Emotion) {
+      const day = this.dateData.find((d) => d.date_id === data.date_id); // grab that emotion's day
+      if (!day) {
+        // Don't add the emotion if the day doesn't exist
+        return;
+      }
+      day["emotions"].push(data);
+      return data;
     }
-
-    if (this.dateData.some((d) => d.date_id === day.date_id)) {
-      return;
-    }
-
-    this.dateData.push(day);
-    return day;
   }
   // Returns the specified day object from the calendar
   async read(id = null) {
@@ -52,6 +63,6 @@ class _LocalDayModel {
   }
 }
 
-const LocalCalendarModel = new _LocalDayModel();
+const LocalDayModel = new _LocalDayModel();
 
-export default LocalCalendarModel;
+export default LocalDayModel;

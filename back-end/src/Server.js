@@ -12,7 +12,7 @@ class Server {
   // Configure middleware for static files and JSON parsing
   configureMiddleware() {
     // Serve static files from the front-end
-    this.app.use(express.static("../front-end/src"));
+    this.app.use(express.static("../../front-end"));
 
     // Parse JSON bodies, limited to 10mb
     this.app.use(express.json({ limit: "10mb" }));
