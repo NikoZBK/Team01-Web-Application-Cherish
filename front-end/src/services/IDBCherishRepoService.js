@@ -73,12 +73,12 @@ export class IDBCherishRepoService extends Service {
           } catch (error) {
             reject(new Error(error));
           }
-
+          console.log("Restored day:", day);
           this.update(Events.RestoredDataSuccess);
           resolve(day);
         } else {
           this.update(Events.RestoredDataFailed);
-          reject(new Error("Data not found"));
+          reject(null);
         }
       };
 

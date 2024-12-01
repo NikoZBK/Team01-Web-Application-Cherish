@@ -1,9 +1,32 @@
+import config from "../../config/config.js";
+import { debugLog } from "../../config/debug.js";
 import { Sequelize, DataTypes } from "sequelize";
 
 // Initialize a new Sequelize instance with SQLite
 const sequelize = new Sequelize({
   dialect: "sqlite",
-  storage: "database.sqlite",
+  // Create a test database if debug .env var is set to true
+  storage: config.debug ? "database_test.sqlite" : "database.sqlite",
+});
+
+// Define the User model
+const User = sequelize.define("User", {
+  user_id: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 // Define the Day model
@@ -46,32 +69,48 @@ const Emotion = sequelize.define("Emotion", {
   },
 });
 
-// Define the relationship between Day and Emotion
-Day.belongsToMany(Emotion, { through: "DayEmotion" });
-// Each emotion should be associated with only one day
-Emotion.hasOne(Day);
+// Define the relationships
+User.hasMany(Day, { foreignKey: "user_id" });
+Day.belongsTo(User, { foreignKey: "user_id" });
+
+Day.hasMany(Emotion, { foreignKey: "date_id" });
+Emotion.belongsTo(Day, { foreignKey: "date_id" });
 
 class _SQLiteDayModel {
   constructor() {}
 
   async init(fresh = false) {
     await sequelize.authenticate();
-    await sequelize.sync({ force: true });
-
+    // debugLog("Sequelize has been authenticated successfully.");
+    await sequelize.sync({ force: fresh });
+    // debugLog("All models were synchronized successfully.");
     if (fresh) {
       await this.delete();
     }
   }
 
   async create(day) {
+    const test = await Day.findByPk(day.date_id);
+    debugLog(`create: ${test}`);
+    if (await Day.findByPk(day.date_id)) {
+      debugLog("Day already exists. Try updating instead.");
+      return null;
+    }
     return await Day.create(day);
   }
 
   async read(id = null) {
     if (id) {
-      return await Day.findByPk(id);
+      debugLog(`read: ${id}`);
+      const day = await Day.findByPk(id);
+      debugLog(`read: ${day}`);
+      debugLog(`typeof day: ${typeof day}`);
+      return day;
     }
-    return await Day.findAll();
+    const allDays = await Day.findAll();
+    debugLog(`read: ${allDays}`);
+    debugLog(`typeof allDays: ${typeof allDays}`);
+    return allDays;
   }
 
   async update(day) {
@@ -84,13 +123,18 @@ class _SQLiteDayModel {
   }
 
   async delete(day = null) {
-    if (day === null) {
-      await Day.destroy({ truncate: true });
+    try {
+      if (day === null) {
+        await Day.destroy({ truncate: true });
+        return;
+      }
+
+      await Day.destroy({ where: { date_id: day.date_id } });
+      return day;
+    } catch (error) {
+      console.error("Error deleting data:", error.message);
       return;
     }
-
-    await Day.destroy({ where: { date_id: day.date_id } });
-    return day;
   }
 }
 

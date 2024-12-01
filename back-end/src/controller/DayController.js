@@ -6,9 +6,7 @@ class DayController {
     ModelFactory.getModel()
       .then((model) => {
         this.model = model;
-        debugLog(
-          `DayController initialized with model: ${model.constructor.name}`
-        );
+        debugLog(`DayController initialized with model: ${typeof model}`);
       })
       .catch((err) => console.error("Error initializing model: ", err));
   }
@@ -55,7 +53,7 @@ class DayController {
         return res.status(200).json(data); // 200 - OK
       }
     } catch (err) {
-      debugLog("Error in getDay:", err.message);
+      debugLog(`Error retrieving data: ${err.message}`);
       return res.status(500).json({ error: err.message });
     }
   }
@@ -68,6 +66,7 @@ class DayController {
       debugLog(`DayController.addDay Request body: ${day.date_id}`);
       const data = await this.model.create(day); // returns a sequelize table object
       if (!data) {
+        debugLog("Day already exists.");
         return res.status(400).json({ error: "Day already exists." });
       } else {
         debugLog(`${day.date_id} added successfully.`);
@@ -86,7 +85,7 @@ class DayController {
       debugLog(`DayController.removeDay Request body: ${date_id}`);
       const data = await this.model.read(date_id);
       if (!data) {
-        debugLog("No data found for date_id:", date_id);
+        debugLog(`${date_id} not found.`);
         return res.status(404).json({ error: "No data found." });
       } else {
         await this.model.delete(data);

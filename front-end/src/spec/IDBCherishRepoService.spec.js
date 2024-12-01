@@ -1,4 +1,4 @@
-import IDBCherishRepoService from "../front-end/src/services/IDBCherishRepoService.js";
+import IDBCherishRepoService from "../services/IDBCherishRepoService.js";
 import {
   IDBFactory,
   IDBKeyRange,
@@ -7,7 +7,7 @@ import {
   IDBTransaction,
   IDBCursor,
 } from "fake-indexeddb";
-import { Day } from "../front-end/src/utils/Day.js";
+import { Day } from "../utils/Day.js";
 // Necessary to mock the indexedDB API
 global.indexedDB = new IDBFactory();
 global.IDBKeyRange = IDBKeyRange;
@@ -62,9 +62,7 @@ describe("IDBCherishRepoService", () => {
       "Data Removed Successfully"
     );
     // Now that the day is removed, we should not be able to restore it
-    await expectAsync(service.restoreDay(day.date_id)).toBeRejectedWithError(
-      "Data not found"
-    );
+    await expectAsync(service.restoreDay(day.date_id)).toBeRejectedWith(null);
   });
   // Should successfully restore a day from the database and then verify that it was restored
   it("should restore a day", async () => {

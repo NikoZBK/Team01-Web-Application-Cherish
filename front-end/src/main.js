@@ -7,19 +7,22 @@ import { EventHub } from "./eventhub/EventHub.js";
 import { Events } from "./eventhub/Events.js";
 import { getToday } from "./utils/dateUtils.js";
 import IDBCherishRepoService from "./services/IDBCherishRepoService.js";
+import { Day } from "./utils/Day.js";
 
 const hub = EventHub.getInstance();
 
 // Initializes database then loads in Main Page
-hub.subscribe(Events.InitDataSuccess, () => {
+hub.subscribe(Events.InitDataSuccess, async () => {
   console.log("Initialized database successfully");
 
-  DATABASE.restoreDay(id)
-    .then((data) => {
-      hub.publish(Events.LoadMainPage, data);
-      hub.publish(Events.LoadNav, data);
-    })
-    .catch(() => alert("Failed to restore day!"));
+  // Restore the current day's data if there is any
+  let today = await DATABASE.restoreDay(id);
+  if (!today) {
+    console.log("No data found for today, creating new day object");
+    today = new Day();
+  }
+  hub.publish(Events.LoadMainPage, today);
+  hub.publish(Events.LoadNav, today);
 });
 
 hub.subscribe(Events.InitDataFailed, () =>

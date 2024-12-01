@@ -1,8 +1,8 @@
-import ModelFactory from "../back-end/src/model/ModelFactory.js";
-import LocalDayModel from "../back-end/src/model/LocalDayModel.js";
-import SQLiteDayModel from "../back-end/src/model/SQLiteDayModel.js";
+import ModelFactory from "../model/ModelFactory.js";
+import LocalDayModel from "../model/LocalDayModel.js";
+import SQLiteDayModel from "../model/SQLiteDayModel.js";
 
-describe("ModelFactory", () => {
+describe("ModelFactory General", () => {
   it("should return an instance of LocalDayModel when model is 'local'", async () => {
     const model = await ModelFactory.getModel("local");
     expect(model).toBe(LocalDayModel);
@@ -12,11 +12,12 @@ describe("ModelFactory", () => {
     const model = await ModelFactory.getModel("sqlite");
     expect(model).toBe(SQLiteDayModel);
   });
-
+  // Dangerous to test this as it will wipe the database
   it("should initialize SQLiteDayModel with fresh data when model is 'sqlite-fresh'", async () => {
     spyOn(SQLiteDayModel, "init").and.callThrough();
     const model = await ModelFactory.getModel("sqlite-fresh");
     expect(SQLiteDayModel.init).toHaveBeenCalledWith(true);
+    console.info("model", model);
     expect(model).toBe(SQLiteDayModel);
   });
 

@@ -2,10 +2,10 @@ import { getToday } from "./dateUtils.js";
 import { Emotion } from "./Emotion.js";
 
 class Day {
-  #date_id;
-  #emotions;
-  #rating;
-  #journal;
+  _date_id;
+  _emotions;
+  _rating;
+  _journal;
 
   constructor(date_id = getToday(), emotions = [], rating = 0, journal = "") {
     this.setDateId(date_id);
@@ -23,13 +23,15 @@ class Day {
   }
 
   setEmotions(emotions) {
-    if (
-      !Array.isArray(emotions) ||
-      !emotions.every((emotion) => emotion instanceof Emotion)
+    if (!Array.isArray(emotions)) {
+      throw new Error("Invalid data type. Emotions must be an array.");
+    } else if (
+      emotions.length > 0 &&
+      emotions.every((emotion) => emotion instanceof Emotion)
     ) {
-      throw new Error("All elements in emotions must be instances of Emotion.");
+      this.emotions = emotions;
     }
-    this.emotions = emotions;
+    this.emotions = [];
   }
 
   setRating(rating) {
@@ -50,19 +52,19 @@ class Day {
     this.journal = journal;
   }
   getDateId() {
-    return this.date_id;
+    return this._date_id;
   }
 
   getEmotions() {
-    return this.emotions;
+    return this._emotions;
   }
 
   getRating() {
-    return this.rating;
+    return this._rating;
   }
 
   getJournal() {
-    return this.journal;
+    return this._journal;
   }
 }
 

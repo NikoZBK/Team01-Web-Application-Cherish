@@ -1,6 +1,6 @@
 import DayController from "../controller/DayController.js";
 import ModelFactory from "../model/ModelFactory.js";
-import { debugLog } from "../../config/debug.js";
+import { createMockRequestResponse } from "../spec/helpers/mockRequestResponse.js";
 
 describe("DayController", () => {
   let dayController;
@@ -20,13 +20,7 @@ describe("DayController", () => {
 
   describe("getAllData", () => {
     it("should return all date data", async () => {
-      const req = {};
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine
-          .createSpy("status")
-          .and.returnValue({ json: jasmine.createSpy("json") }),
-      };
+      const { req, res } = createMockRequestResponse();
       const dateData = [{ date_id: "1", emotions: [] }];
       mockModel.read.and.returnValue(Promise.resolve(dateData));
 
@@ -37,13 +31,7 @@ describe("DayController", () => {
     });
 
     it("should return 404 if no data found", async () => {
-      const req = {};
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine
-          .createSpy("status")
-          .and.returnValue({ json: jasmine.createSpy("json") }),
-      };
+      const { req, res } = createMockRequestResponse();
       mockModel.read.and.returnValue(Promise.resolve(null));
 
       await dayController.getAllData(req, res);
@@ -58,13 +46,7 @@ describe("DayController", () => {
 
   describe("getDay", () => {
     it("should return specific day", async () => {
-      const req = { body: { date_id: "1" } };
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine.createSpy("status").and.returnValue({
-          json: jasmine.createSpy("json"),
-        }),
-      };
+      const { req, res } = createMockRequestResponse({ date_id: "1" });
       const dateData = { date_id: "1", emotions: [] };
       mockModel.read.and.returnValue(Promise.resolve(dateData));
 
@@ -76,13 +58,7 @@ describe("DayController", () => {
     });
 
     it("should return 404 if no data found", async () => {
-      const req = { body: { date_id: "1" } };
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine.createSpy("status").and.returnValue({
-          json: jasmine.createSpy("json"),
-        }),
-      };
+      const { req, res } = createMockRequestResponse({ date_id: "1" });
       mockModel.read.and.returnValue(Promise.resolve(null));
 
       await dayController.getDay(req, res);
@@ -94,15 +70,13 @@ describe("DayController", () => {
       });
     });
   });
+
   describe("addDay", () => {
     it("should add a new day", async () => {
-      const req = { body: { date_id: "1", emotions: [] } };
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine
-          .createSpy("status")
-          .and.returnValue({ json: jasmine.createSpy("json") }),
-      };
+      const { req, res } = createMockRequestResponse({
+        date_id: "1",
+        emotions: [],
+      });
       mockModel.create.and.returnValue(Promise.resolve(req.body));
 
       await dayController.addDay(req, res);
@@ -113,13 +87,10 @@ describe("DayController", () => {
     });
 
     it("should return 400 if day already exists", async () => {
-      const req = { body: { date_id: "1", emotions: [] } };
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine
-          .createSpy("status")
-          .and.returnValue({ json: jasmine.createSpy("json") }),
-      };
+      const { req, res } = createMockRequestResponse({
+        date_id: "1",
+        emotions: [],
+      });
       mockModel.create.and.returnValue(Promise.resolve(null));
 
       await dayController.addDay(req, res);
@@ -131,15 +102,10 @@ describe("DayController", () => {
       });
     });
   });
+
   describe("removeDay", () => {
     it("should remove a specific day", async () => {
-      const req = { body: { date_id: "1" } };
-      const res = {
-        json: jasmine.createSpy("json"),
-        status: jasmine
-          .createSpy("status")
-          .and.returnValue({ json: jasmine.createSpy("json") }),
-      };
+      const { req, res } = createMockRequestResponse({ date_id: "1" });
       const dateData = { date_id: "1", emotions: [] };
       mockModel.read.and.returnValue(Promise.resolve(dateData));
 
