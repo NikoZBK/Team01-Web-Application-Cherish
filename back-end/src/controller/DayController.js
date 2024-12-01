@@ -1,100 +1,100 @@
 import ModelFactory from "../model/ModelFactory.js";
-
-// Property constants
-const ID = "date_id",
-  EMOTIONS = "emotions",
-  EMOTION = "emotion";
-
-// ********************************************************************************************************************
-// * Note: The day related functions need to be passed the `date_id` in the request body                              *
-// *       The emotion related functions need to be passed the `date_id` and the `emotion` object in the request body *
-// ********************************************************************************************************************
+import { debugLog } from "../../config/debug.js";
 
 class DayController {
   constructor() {
     ModelFactory.getModel()
       .then((model) => {
         this.model = model;
-        console.log("Model initialized successfully:", model);
+        debugLog(
+          `DayController initialized with model: ${model.constructor.name}`
+        );
       })
       .catch((err) => console.error("Error initializing model: ", err));
   }
 
-  /** Day Related Functions */
-
-  // Retrieve all user's data
-  // Request not used
-  async getAllDateData(req, res) {
+  async getAllData(req, res) {
     try {
-      const dateData = await this.model.read();
-      if (!dateData) {
+      const data = await this.model.read();
+      if (!data) {
+        debugLog("No data found.");
         return res.status(404).json({ error: "No data found." });
+      } else {
+        debugLog("All data retrieved successfully.");
+        return res.status(200).json(data); // 200 - OK
       }
-      return res.json(dateData); // return all the data
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
+  }
+
+  async getYear(req, res) {
+    // TODO: Get all data for a specific year
+  }
+
+  async getMonth(req, res) {
+    // TODO: Get all data for a specific month
+  }
+
+  async getWeek(req, res) {
+    // TODO: Get all data for a specific week
   }
 
   // Retrieve a specific day's data
   // Request body should contain the `date_id`
-  async getDateData(req, res) {
+  async getDay(req, res) {
     try {
-      const data = req.body;
-      console.log("Request body:", data);
-
-      const dateData = await this.model.read(data[ID]);
-      console.log("Data retrieved from model:", dateData);
-
-      if (!dateData) {
-        console.log("No data found for date_id:", data[ID]);
+      const { date_id } = req.body;
+      debugLog(`DayController.getDay Request body: ${date_id}`);
+      const data = await this.model.read(date_id);
+      if (!data) {
+        debugLog(`${date_id} not found.`);
         return res.status(404).json({ error: "No data found." });
+      } else {
+        debugLog(`${date_id} retrieved successfully.`);
+        return res.status(200).json(data); // 200 - OK
       }
-      return res.json(dateData);
-    } catch (error) {
-      console.error("Error in getDateData:", error.message);
-      return res.status(500).json({ error: error.message });
+    } catch (err) {
+      debugLog("Error in getDay:", err.message);
+      return res.status(500).json({ error: err.message });
     }
   }
 
   // Add a new day's data
-  // Request body should contain the `date_id`
-  async addDateData(req, res) {
+  // Request body should contain the `day` object to add
+  async addDay(req, res) {
     try {
-      const data = req.body;
-      console.log("Request body:", data);
-
-      const dateData = await this.model.create(data);
-      console.log("Data created successfully:", dateData);
-
-      return res.json(dateData);
-    } catch (error) {
-      console.error("Error in addDateData:", error.message);
-      return res.status(500).json({ error: error.message });
+      const day = req.body;
+      debugLog(`DayController.addDay Request body: ${day.date_id}`);
+      const data = await this.model.create(day); // returns a sequelize table object
+      if (!data) {
+        return res.status(400).json({ error: "Day already exists." });
+      } else {
+        debugLog(`${day.date_id} added successfully.`);
+        return res.status(201).json(data); // 201 - Created
+      }
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
   }
 
   // Remove a specific day's data
   // Request body should contain the `date_id`
-  async removeDateData(req, res) {
+  async removeDay(req, res) {
     try {
-      const data = req.body;
-      console.log("Request body:", data);
-
-      const dateData = await this.model.read(data[ID]);
-      console.log("Data retrieved for date_id:", dateData);
-
-      if (!dateData) {
-        console.log("No data found for date_id:", data[ID]);
+      const { date_id } = req.body;
+      debugLog(`DayController.removeDay Request body: ${date_id}`);
+      const data = await this.model.read(date_id);
+      if (!data) {
+        debugLog("No data found for date_id:", date_id);
         return res.status(404).json({ error: "No data found." });
+      } else {
+        await this.model.delete(data);
+        debugLog(`${date_id} removed successfully.`);
+        return res.status(200).json(data); // 200 - OK
       }
-      await this.model.delete(dateData);
-      console.log("Data removed successfully:", dateData);
-
-      return res.json(dateData);
-    } catch (error) {
-      console.error("Error in removeDateData:", error.message);
-      return res.status(500).json({ error: error.message });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
   }
 
@@ -102,154 +102,34 @@ class DayController {
   async clearDateData(req, res) {
     try {
       await this.model.delete();
-      return res.json({});
+      return res.status(204); // 204 - No Content
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
   }
 
-  /** Emotion Related Functions */
-
-  // Retrieve a specific day's emotion data
-  // Request body should contain the `date_id`
-  async getEmotionData(req, res) {
-    try {
-      const data = req.body;
-      const dateData = await this.model.read(data[ID]);
-      if (!dateData) {
-        return res.status(404).json({ error: "No data found." });
-      }
-      return res.json(dateData[EMOTIONS] || []); // return the emotion data
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+  async getEmotions(req, res) {
+    // TODO: Get all emotions for a specific day
   }
 
-  // Retrieve a specific emotion log from a specific day
-  // Request body should contain the `date_id` and the `emotion` object to retrieve
-  async getEmotionLog(req, res) {
-    try {
-      const data = req.body;
-      if (!data[EMOTION]) {
-        return res.status(400).json({ error: "Emotion object is required." });
-      }
-      const dateData = await this.model.read(data[ID]);
-      if (!dateData) {
-        return res.status(404).json({ error: "No data found." });
-      }
-      const emotion = dateData[EMOTIONS]?.find((e) =>
-        this.#isEqualEmotion(data[EMOTION], e)
-      );
-      return res.json(emotion); // return the emotion log
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+  async getEmotion(req, res) {
+    // TODO: Get a specific emotion for a specific day
   }
 
-  // Remove a specific emotion log from a specific day
-  // Request body should contain the `date_id` and the `emotion` object to remove
-  async removeEmotionLog(req, res) {
-    try {
-      const data = req.body;
-      console.log("Request body:", data);
-
-      if (!data[EMOTION]) {
-        console.log("Emotion object is missing from request body.");
-        return res.status(400).json({ error: "Emotion object is required." });
-      }
-      const dateData = await this.model.read(data[ID]);
-      console.log("Data retrieved for date_id:", dateData);
-
-      if (!dateData) {
-        console.log("No data found for date_id:", data[ID]);
-        return res.status(404).json({ error: "No data found." });
-      }
-      const index = dateData[EMOTIONS]?.findIndex((e) => {
-        return this.#isEqualEmotion(data[EMOTION], e);
-      });
-
-      console.log("Index of emotion to remove:", index);
-      if (index !== -1) {
-        dateData[EMOTIONS].splice(index, 1);
-        await this.model.update(dateData);
-        console.log("Emotion removed successfully. Updated data:", dateData);
-        return res.json(dateData); // return the updated date data
-      } else {
-        console.log("Emotion not found:", data[EMOTION]);
-        return res.status(404).json({ error: "Emotion not found." });
-      }
-    } catch (error) {
-      console.error("Error in removeEmotionLog:", error.message);
-      return res.status(500).json({ error: error.message });
-    }
+  async clearEmotions(req, res) {
+    // TODO: Clear all emotions for a specific day
   }
-
-  // Add a new emotion log to a specific day
-  // Request body should contain the `date_id` and the `emotion` object to add
-  async addEmotionLog(req, res) {
-    try {
-      const data = req.body;
-      console.log("Request body:", data);
-      if (!data[EMOTION]) {
-        console.log("Emotion object is missing from request body.");
-
-        return res.status(400).json({ error: "Emotion object is required." });
-      }
-      const dateData = await this.model.read(data[ID]);
-      if (dateData) {
-        if (
-          !dateData[EMOTIONS]?.some((e) =>
-            this.#isEqualEmotion(data[EMOTION], e)
-          ) // only push if emotion doesn't already exist
-        ) {
-          dateData[EMOTIONS].push(data[EMOTION]);
-          await this.model.update(dateData);
-          return res.json(dateData); // return the updated date data
-        } else {
-          return res.status(400).json({ error: "Emotion already exists." });
-        }
-      } else {
-        return res.status(404).json({ error: "No data found." });
-      }
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+  async clearEmotion(req, res) {
+    // TODO: Clear a specific emotion for a specific day
   }
-
-  // Edit a specific emotion log from a specific day
-  // Request body should contain the `date_id` and the `emotion` object to edit
-  async editEmotionLog(req, res) {
-    try {
-      const data = req.body;
-      if (!data[EMOTION]) {
-        return res.status(400).json({ error: "Emotion object is required." });
-      }
-      const dateData = await this.model.read(data[ID]);
-      if (!dateData) {
-        return res.status(404).json({ error: "No data found." });
-      }
-      const index = dateData[EMOTIONS]?.findIndex((e) => {
-        return this.#isEqualEmotion(data[EMOTION], e);
-      });
-      if (index !== -1) {
-        dateData[EMOTIONS][index] = data[EMOTION];
-        await this.model.update(dateData);
-        return res.json(dateData);
-      } else {
-        return res.status(404).json({ error: "Emotion not found." });
-      }
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+  async addEmotions(req, res) {
+    // TODO: Add an emotions collection to a specific day
   }
-
-  // Helper function to compare two emotion objects
-  #isEqualEmotion(emotion1, emotion2) {
-    if (emotion1 === emotion2) return true;
-    if (!emotion1 || !emotion2) return false;
-    return Object.keys(emotion1).every(
-      (key) => emotion1[key] === emotion2[key]
-    );
+  async addEmotion(req, res) {
+    // TODO: Add an emotion to a specific day
+  }
+  async updateEmotion(req, res) {
+    // TODO: Update an emotion for a specific day
   }
 }
 
