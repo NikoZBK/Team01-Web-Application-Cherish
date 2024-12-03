@@ -1,5 +1,6 @@
 import ModelFactory from "../model/ModelFactory.js";
 import { debugLog } from "../../config/debug.js";
+import { factoryResponse } from "../../authentication/middleware.js";
 
 class DayController {
   constructor() {
@@ -25,6 +26,30 @@ class DayController {
       return res.status(500).json({ error: err.message });
     }
   }
+
+
+  // Retrieves the user's account data
+  // Request body should contain the `username`
+  async getUserByUsername(req, res) {
+    try {
+      const { username } = req.body;
+      debugLog(`DayController.getUserByUsername Request body: ${username}`);
+      const data = await this.model.loginUser(username);
+
+      if (!data) {
+        debugLog(`${username} not found.`);
+        return res.status(404).json(factoryResponse(404, `Account not found`));
+      }
+
+      debugLog(`Account data retrieved successfully.`);
+      return res.status(200).json(data);
+    }
+    catch (error) {
+      debugLog(`Error retrieving data: ${err.message}`);
+      return res.status(500).json(factoryResponse(500, error.message));
+    }
+  }
+
 
   async getYear(req, res) {
     // TODO: Get all data for a specific year
