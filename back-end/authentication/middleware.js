@@ -1,5 +1,5 @@
 // Helper function
-const factoryResponse = (status, message) => ({ status, message });
+export const factoryResponse = (status, message) => ({ status, message });
 
 export const isAuthenticated = (req, res, next) => {
   return req.isAuthenticated()
