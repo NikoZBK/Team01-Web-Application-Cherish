@@ -1,6 +1,8 @@
 import config from "../../config/config.js";
 import { debugLog } from "../../config/debug.js";
 import { Sequelize, DataTypes } from "sequelize";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // Initialize a new Sequelize instance with SQLite
 const sequelize = new Sequelize({
@@ -92,17 +94,87 @@ class _SQLiteDayModel {
 
   // User Authentication
   async userExists(username) {
-    return await User.findOne({where: {username}});
+    return await User.findOne({ where: { username } });
+  }
+
+  async emailTaken(email) {
+    return await User.findOne({ where: { email } });
   }
 
   async createUser(user) {
-    const test = await User.findByPk(user.username);
-    debugLog(`create: ${test}`);
-    if (await Day.findByPk(user.username)) {
-      debugLog("Username already taken");
-      return null;
+    try {
+      // Check if valid username and email exist
+      const existsUser = await this.userExists(user.username);
+      const takenEmail = await this.emailTaken(user.email);
+
+      if (existsUser) {
+        debugLog(`Username ${user.username} already taken.`);
+        return { success: false, message: "Username already taken." };
+      }
+
+      if (takenEmail) {
+        debugLog(`Email ${user.email} already in use.`);
+        return { success: false, message: "Email already in use." };
+      }
+
+      // Hash password and create user
+      user.password = await bcrypt.hash(user.password, 10);
+      const createdUser = await User.create(user);
+      
+      debugLog(`User ${user.username} created successfully.`);
+      return { success: true, user: createdUser };
+
+    } catch (error) { // Any error creating a user
+      debugLog(`Error creating user: ${error.message}`);
+      return { success: false, message: "Error creating user." };
     }
-    return await User.create(user);
+  }
+
+  async deleteUser(username) {
+    try {
+      // Finds the user by username
+      const user = await this.userExists(username);
+      if (!user) {
+        throw new Error("User not found");
+      }
+  
+      // Deletes the user from the database
+      await user.destroy();
+      return { success: true, message: "User deleted successfully" };
+    } catch (error) {
+      debugLog(`Error deleting user: ${error.message}`);
+      return { success: false, message: "User deletion failed" };
+    }
+  }
+  
+
+  /**
+   * Attempts to the user into their account.
+   * 
+   * @param {String} username an inputted username
+   * @param {String} password an inputted password
+   * @returns the user's data
+   */
+  async loginUser(username, password) {
+    try {
+      // Finds user in the database
+      const user = await User.findByPk(username); 
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Checks for valid password (compares typed-in password with the encrypted one)
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        throw new Error("Invalid password");
+      }
+
+      // User has successfully logged in
+      return {success: true, message: "Login successful", user};
+    } catch (error) {
+      debugLog(`Error logging in: ${error.message}`);
+      return { success: false, message: "Login failed." };
+    }
   }
 
   // Day
