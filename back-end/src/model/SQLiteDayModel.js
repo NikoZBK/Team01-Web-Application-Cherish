@@ -42,7 +42,7 @@ const Day = sequelize.define("Day", {
   },
 });
 // Define the Emotion model
-const Emotion = sequelize.define("Emotion", {
+const Emotion = sequelize.define("emotion", {
   date_id: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -83,33 +83,19 @@ class _SQLiteDayModel {
     // debugLog("All models were synchronized successfully.");
     if (fresh) {
       await this.delete();
-
-      // Create test data
-      await this.create({
-        date_id: "10-10-1010",
-        rating: 5,
-        journal: "Test journal entry",
-      });
-      await this.create({
-        date_id: "10-11-1010",
-        rating: 4,
-        journal: "Another test journal entry",
-      });
-      await this.create({
-        date_id: "10-12-1010",
-        rating: 3,
-        journal: "Yet another test journal entry",
-      });
     }
   }
 
   async create(day) {
     try {
-      if (await Day.findByPk(day.date_id)) {
-        debugLog("Day already exists. Try updating instead.");
-        return null;
+      const existingDay = await Day.findByPk(day.date_id);
+      if (existingDay) {
+        return await this.update(day);
       }
-      return await Day.create(day);
+      const newDay = await Day.create(day, {
+        include: [Emotion],
+      });
+      return newDay.toJSON();
     } catch (error) {
       console.error("Error creating day:", error.message);
       return null;
@@ -119,11 +105,15 @@ class _SQLiteDayModel {
   async read(id = null) {
     try {
       if (id) {
-        const day = await Day.findByPk(id);
+        const day = await Day.findByPk(id, {
+          include: [Emotion],
+        });
         return day;
       }
-      const allDays = await Day.findAll();
-      return allDays;
+      const allDays = await Day.findAll({
+        include: [Emotion],
+      });
+      return allDays.map((day) => day.toJSON());
     } catch (error) {
       console.error("Error reading data:", error.message);
       return null;
@@ -131,22 +121,32 @@ class _SQLiteDayModel {
   }
 
   async update(day) {
-    const updatedDay = await Day.findByPk(day.date_id);
-    if (updatedDay) {
-      await updatedDay.update(day);
-      return updatedDay.get({ plain: true });
+    try {
+      const existingDay = await Day.findByPk(day.date_id);
+      if (existingDay) {
+        await existingDay.update(day);
+        if (day.emotions) {
+          await Emotion.destroy({ where: { date_id: day.date_id } });
+          await Emotion.bulkCreate(day["emotions"]);
+        }
+        return existingDay.toJSON();
+      }
+      return null;
+    } catch (error) {
+      console.error("Error updating day:", error.message);
+      return null;
     }
-    return null;
   }
 
   async delete(day = null) {
     try {
       if (day === null) {
         await Day.destroy({ truncate: true });
+        await Emotion.destroy({ truncate: true });
         return;
       }
-
       await Day.destroy({ where: { date_id: day.date_id } });
+      await Emotion.destroy({ where: { date_id: day.date_id } });
       return day;
     } catch (error) {
       console.error("Error deleting data:", error.message);

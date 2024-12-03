@@ -1,6 +1,7 @@
 import { Events } from "../../eventhub/Events.js";
 import { BaseComponent } from "../../BaseComponent.js";
 import { dateFormat } from "../day/DayComponent.js";
+import { debugLog } from "../../config/debug.js";
 
 // Gets current time, formats as (HH:MM)
 export function getCurrentTime() {
@@ -42,7 +43,13 @@ export class CheckInComponent extends BaseComponent {
   constructor() {
     super("checkInPage", "./pages/check-in/stylesCheckIn.css");
     this.dateData = {};
-    this.emotionData = [];
+    this.emotionData = {
+      date_id: "",
+      emotion_id: "",
+      magnitude: 5,
+      description: "",
+      timestamp: "",
+    };
     this.editMode = false;
     this.emotion_index = -1;
   }
@@ -209,7 +216,13 @@ export class CheckInComponent extends BaseComponent {
 
   // Reset the check-in form
   _resetCheckIn() {
-    this.emotionData = { emotion_id: "", magnitude: 5, description: "" };
+    this.emotionData = {
+      date_id: "",
+      emotion_id: "",
+      magnitude: 5,
+      description: "",
+      timestamp: "",
+    };
     this.inputEmotions.forEach((input) => (input.checked = false));
 
     // ROBBIE CHANGED: Added Header to Display current emotion picked
@@ -235,6 +248,10 @@ export class CheckInComponent extends BaseComponent {
     if (!this.dateData.emotions) {
       this.dateData.emotions = [];
     }
+
+    // Ensure the emotion has a date_id
+    this.emotionData["date_id"] = this.dateData.date_id;
+
     // If not in edit mode, push the new emotion to the array
     if (!this.editMode) {
       // Clone the emotionData object before pushing it to the array
@@ -287,6 +304,11 @@ export class CheckInComponent extends BaseComponent {
   _render(data, emotion_index) {
     this.emotion_index = emotion_index;
     this.dateData = data;
+    debugLog(
+      `Rendering Check In Page: this.dateData = ${JSON.stringify(
+        this.dateData
+      )}`
+    );
     this.prevData = {};
     this._loadEmotion();
     this.titleDate.textContent = dateFormat(data.date_id);

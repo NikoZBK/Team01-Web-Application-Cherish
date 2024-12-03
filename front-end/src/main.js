@@ -14,11 +14,9 @@ const hub = EventHub.getInstance();
 
 // Initializes database then loads in Main Page
 hub.subscribe(Events.InitDataSuccess, async () => {
-  console.log("Initialized database successfully");
-  const id = getToday();
   // Restore the current day's data if there is any
-  let today = await DATABASE.storeDay(new Day(id));
-
+  const data = await DATABASE.getCachedData();
+  let today = data.find((d) => d.date_id === getToday());
   if (!today) {
     console.log("No data found for today, creating new day object");
     today = new Day();

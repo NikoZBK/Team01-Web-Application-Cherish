@@ -15,9 +15,9 @@ class Day {
   }
 
   setDateId(date_id) {
-    const datePattern = /^\d{2}-\d?\d-\d{4}$/;
+    const datePattern = /^\d?\d-\d?\d-\d{4}$/;
     if (!datePattern.test(date_id)) {
-      throw new Error("Invalid date format. Please use MM-(D)D-YYYY.");
+      throw new Error("Invalid date format. Please use (M)M-(D)D-YYYY.");
     }
     this.date_id = date_id;
   }

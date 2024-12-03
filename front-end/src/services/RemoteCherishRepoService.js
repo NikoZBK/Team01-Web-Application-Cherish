@@ -1,6 +1,10 @@
 import Service from "./Service.js";
 import { Events } from "../eventhub/Events.js";
 import { debugLog } from "../config/debug.js";
+import { Day } from "../utils/Day.js";
+import { cache, indexOfDayCache } from "./cache.js";
+
+// Keep a cached copy of the calendar data
 
 export class RemoteCherishRepoService extends Service {
   constructor() {
@@ -13,7 +17,6 @@ export class RemoteCherishRepoService extends Service {
     this.addEvent(Events.StoreData, (data) => this.storeDay(data));
     this.addEvent(Events.RemoveData, (id) => this.removeDay(id));
     this.addEvent(Events.RestoreData, (id) => this.restoreDay(id));
-    this.addEvent(Events.RestoredDataFailed, (id) => this.storeDay(id));
     this.addEvent(Events.ClearData, () => this.clearDatabase());
     this.addEvent(Events.UpdateData, (data) => this.updateDay(data));
   }
@@ -22,28 +25,60 @@ export class RemoteCherishRepoService extends Service {
     try {
       debugLog("Fetching calendar data...");
       const response = await fetch("/v1/days");
-      debugLog(`response: ${response}`);
+      debugLog(`response: ${response.status}`);
       const data = await response.json();
-      this.update(Events.InitDataSuccess, data);
+      data.forEach((day) => cache.push(JSON.stringify(day)));
+      debugLog(`Setting the cache...`);
+      // debug output the cache
+      console.log(`cache: ${cache}`);
+      this.update(Events.InitDataSuccess, cache);
     } catch (err) {
       this.update(Events.InitDataFailed, err);
       throw new Error("Failed to fetch calendar: " + err);
     }
   }
 
+  async getCachedData() {
+    debugLog(`Returning cached data: ${cache}`);
+    return cache;
+  }
+
+  async updateCachedData(data) {
+    debugLog("Updating cached data...");
+    console.log(`Updating cached data: ${data}`);
+    if (!data) {
+      debugLog("No data to update.");
+      return;
+    }
+    if (indexOfDayCache(data.date_id) === -1) {
+      // not in cache
+      debugLog(`Pushing to cache: ${data.date_id}`);
+      cache.push(data);
+    } else {
+      debugLog(`Updating cache: ${data.date_id}`);
+      cache[indexOfDayCache(data.date_id)] = data; // update the cache
+    }
+  }
+
   async storeDay(data) {
     try {
-      console.log(`Storing day: ${JSON.stringify(data)}`);
-      const response = await fetch(
-        `/v1/days/${typeof data === "string" ? data : data?.date_id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const date_id = data?.date_id || data;
+      if (indexOfDayCache(date_id) === -1) {
+        // not in cache
+        debugLog(`Pushing to cache: ${date_id}`);
+        cache.push(data);
+      } else {
+        debugLog(`Updating cache: ${date_id}`);
+        cache[indexOfDayCache(date_id)] = data; // update the cache
+      }
+      console.log(`Storing day: ${date_id}`);
+      const response = await fetch(`/v1/days/${date_id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cache),
+      });
       this.update(Events.StoredDataSuccess);
       return await response.json();
     } catch (err) {
@@ -54,29 +89,26 @@ export class RemoteCherishRepoService extends Service {
 
   async restoreDay(id) {
     try {
-      // ensure id is an object with a date_id property
-      if (typeof id === "object") {
-        id = id?.date_id;
+      id = id?.date_id || id;
+      let data;
+      if (indexOfDayCache(id) !== -1) {
+        // check cache first
+        debugLog(`Returning cached day for ${id}`);
+        data = cache[indexOfDayCache(id)];
+        return data;
       }
-
-      console.log(`id=${id}`);
 
       const response = await fetch(`/v1/days/${id}`);
 
-      // console.log("Response status:", response.status);
-      // console.log("Response headers:", response.headers);
-      // console.log("Response body used:", response.bodyUsed);
-
-      if ((await response.text()) === "No data found.") {
-        this.update(Events.RestoredDataFailed, "No data found.");
-        return;
+      if (response.status === 404) {
+        debugLog(`Creating new day for ${id}`);
+        data = new Day(id);
+      } else {
+        debugLog(`Returning day for ${id}`);
+        data = await response.json(); // should be an object
       }
-
-      const text = await response.text();
-      console.log("Response text:", text);
-
-      const data = JSON.parse(text);
       console.log("Response data:", data);
+      cache[id] = data; // Update the cache
 
       this.update(Events.RestoredDataSuccess, data);
       return data;

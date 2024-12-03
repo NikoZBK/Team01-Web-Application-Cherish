@@ -19,7 +19,11 @@ class DayController {
         return res.status(404).json({ error: "No data found." });
       } else {
         debugLog("All data retrieved successfully.");
-        return res.status(200).json(data); // 200 - OK
+        // Ensure data is an array of plain objects
+        const plainData = data.map((item) =>
+          item.toJSON ? item.toJSON() : item
+        );
+        return res.status(200).json(plainData); // 200 - OK
       }
     } catch (err) {
       return res.status(500).json({ error: err.message });

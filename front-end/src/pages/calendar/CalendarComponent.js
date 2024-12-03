@@ -87,18 +87,14 @@ export class CalendarComponent extends BaseComponent {
     document.querySelector(".days").addEventListener("click", (e) => {
       const t = e.target;
       if (t.classList.contains("day")) {
-        const date = t.dataset.date;
-        console.log(`dataset.date: ${date}`);
+        const date_id = t.dataset.date;
+        console.log(`dataset.date: ${date_id}`);
+        if (!date_id) {
+          console.log("No date_id found");
+          return;
+        }
         // Restore the data for the selected day
-        DATABASE.restoreDay(date).then((data) => {
-          console.log(
-            `data returned from restoreDay = ${JSON.stringify(data)}`
-          );
-          console.log("Done!");
-          this.update(Events.LoadDayPage, data);
-        });
-
-        console.log(`Loading ${date}...`);
+        this.update(Events.LoadDayPage, date_id);
       }
     });
 
