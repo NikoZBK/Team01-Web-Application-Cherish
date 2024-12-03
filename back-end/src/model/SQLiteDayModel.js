@@ -11,13 +11,9 @@ const sequelize = new Sequelize({
 
 // Define the User model
 const User = sequelize.define("User", {
-  user_id: {
-    type: DataTypes.STRING,
-    primaryKey: true,
-  },
   username: {
     type: DataTypes.STRING,
-    allowNull: false,
+    primaryKey: true,
   },
   password: {
     type: DataTypes.STRING,
@@ -25,8 +21,13 @@ const User = sequelize.define("User", {
   },
   email: {
     type: DataTypes.STRING,
+    unique: true,
     allowNull: false,
   },
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: "user" // Roles: User, Admin
+  }
 });
 
 // Define the Day model
@@ -89,6 +90,22 @@ class _SQLiteDayModel {
     }
   }
 
+  // User Authentication
+  async userExists(username) {
+    return await User.findOne({where: {username}});
+  }
+
+  async createUser(user) {
+    const test = await User.findByPk(user.username);
+    debugLog(`create: ${test}`);
+    if (await Day.findByPk(user.username)) {
+      debugLog("Username already taken");
+      return null;
+    }
+    return await User.create(user);
+  }
+
+  // Day
   async create(day) {
     const test = await Day.findByPk(day.date_id);
     debugLog(`create: ${test}`);

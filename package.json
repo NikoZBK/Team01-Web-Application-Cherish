@@ -13,6 +13,7 @@
   "description": "The Cherish App",
   "dependencies": {
     "@dotenvx/dotenvx": "^1.26.0",
+    "bcrypt": "^5.1.1",
     "cherish-app": "file:",
     "dotenv": "^16.4.5",
     "express": "^5.0.1",
