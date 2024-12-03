@@ -69,6 +69,11 @@ class DayRoutes {
       debugLog("DELETE /v1/calendar");
       await DayController.clearDateData(req, res);
     });
+
+    this.router.get("/v1/users/:username", async (req, res) => {
+      debugLog(`GET /v1/users/:username`);
+      await DayController.getUserByUsername(req, res);
+    })
   }
 
   getRouter() {
