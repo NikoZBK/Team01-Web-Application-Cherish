@@ -11,12 +11,9 @@ const sequelize = new Sequelize({
 
 // Define the User model
 const User = sequelize.define("User", {
-  user_id: {
-    type: DataTypes.STRING,
-    primaryKey: true,
-  },
   username: {
     type: DataTypes.STRING,
+    primaryKey: true,
     allowNull: false,
   },
   password: {
@@ -70,8 +67,8 @@ const Emotion = sequelize.define("Emotion", {
 });
 
 // Define the relationships
-User.hasMany(Day, { foreignKey: "user_id" });
-Day.belongsTo(User, { foreignKey: "user_id" });
+// User.hasMany(Day, { foreignKey: "username" });
+// Day.belongsTo(User, { foreignKey: "username" });
 
 Day.hasMany(Emotion, { foreignKey: "date_id" });
 Emotion.belongsTo(Day, { foreignKey: "date_id" });
@@ -86,38 +83,58 @@ class _SQLiteDayModel {
     // debugLog("All models were synchronized successfully.");
     if (fresh) {
       await this.delete();
+
+      // Create test data
+      await this.create({
+        date_id: "10-10-1010",
+        rating: 5,
+        journal: "Test journal entry",
+      });
+      await this.create({
+        date_id: "10-11-1010",
+        rating: 4,
+        journal: "Another test journal entry",
+      });
+      await this.create({
+        date_id: "10-12-1010",
+        rating: 3,
+        journal: "Yet another test journal entry",
+      });
     }
   }
 
   async create(day) {
-    const test = await Day.findByPk(day.date_id);
-    debugLog(`create: ${test}`);
-    if (await Day.findByPk(day.date_id)) {
-      debugLog("Day already exists. Try updating instead.");
+    try {
+      if (await Day.findByPk(day.date_id)) {
+        debugLog("Day already exists. Try updating instead.");
+        return null;
+      }
+      return await Day.create(day);
+    } catch (error) {
+      console.error("Error creating day:", error.message);
       return null;
     }
-    return await Day.create(day);
   }
 
   async read(id = null) {
-    if (id) {
-      debugLog(`read: ${id}`);
-      const day = await Day.findByPk(id);
-      debugLog(`read: ${day}`);
-      debugLog(`typeof day: ${typeof day}`);
-      return day;
+    try {
+      if (id) {
+        const day = await Day.findByPk(id);
+        return day;
+      }
+      const allDays = await Day.findAll();
+      return allDays;
+    } catch (error) {
+      console.error("Error reading data:", error.message);
+      return null;
     }
-    const allDays = await Day.findAll();
-    debugLog(`read: ${allDays}`);
-    debugLog(`typeof allDays: ${typeof allDays}`);
-    return allDays;
   }
 
   async update(day) {
     const updatedDay = await Day.findByPk(day.date_id);
     if (updatedDay) {
       await updatedDay.update(day);
-      return updatedDay;
+      return updatedDay.get({ plain: true });
     }
     return null;
   }

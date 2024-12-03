@@ -27,7 +27,8 @@ describe("DayController", () => {
       await dayController.getAllData(req, res);
 
       expect(mockModel.read).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith(dateData);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status().json).toHaveBeenCalledWith(dateData);
     });
 
     it("should return 404 if no data found", async () => {
@@ -115,6 +116,57 @@ describe("DayController", () => {
       expect(mockModel.delete).toHaveBeenCalledWith(dateData);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.status().json).toHaveBeenCalledWith(dateData);
+    });
+    it("should return 404 if no data found", async () => {
+      const { req, res } = createMockRequestResponse({ date_id: "1" });
+      mockModel.read.and.returnValue(Promise.resolve(null));
+
+      await dayController.removeDay(req, res);
+
+      expect(mockModel.read).toHaveBeenCalledWith("1");
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status().json).toHaveBeenCalledWith({
+        error: "No data found.",
+      });
+    });
+  });
+  describe("clearAllData", () => {
+    it("should remove all logged data", async () => {
+      const { req, res } = createMockRequestResponse();
+      mockModel.delete.and.returnValue(Promise.resolve());
+
+      await dayController.clearAllData(req, res);
+
+      expect(mockModel.delete).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(204);
+    });
+  });
+  describe("getEmotions", () => {
+    it("should return all emotions for a specific day", async () => {
+      const { req, res } = createMockRequestResponse({ date_id: "1" });
+      const dateData = { date_id: "1", emotions: [{ emotion_id: "Happy" }] };
+      mockModel.read.and.returnValue(Promise.resolve(dateData));
+
+      const result = await dayController.getEmotions(req, res);
+      // print out the result for debugging
+      console.info(`Jasmine: ${result}`);
+
+      expect(mockModel.read).toHaveBeenCalledWith("1");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status().json).toHaveBeenCalledWith(dateData.emotions);
+    });
+
+    it("should return 404 if no data found", async () => {
+      const { req, res } = createMockRequestResponse({ date_id: "1" });
+      mockModel.read.and.returnValue(Promise.resolve(null));
+
+      await dayController.getEmotions(req, res);
+
+      expect(mockModel.read).toHaveBeenCalledWith("1");
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status().json).toHaveBeenCalledWith({
+        error: "No data found.",
+      });
     });
   });
 });

@@ -6,7 +6,7 @@ class DayController {
     ModelFactory.getModel()
       .then((model) => {
         this.model = model;
-        debugLog(`DayController initialized with model: ${typeof model}`);
+        debugLog(`DayController initialized.`);
       })
       .catch((err) => console.error("Error initializing model: ", err));
   }
@@ -14,7 +14,7 @@ class DayController {
   async getAllData(req, res) {
     try {
       const data = await this.model.read();
-      if (!data) {
+      if (!data || data.length === 0) {
         debugLog("No data found.");
         return res.status(404).json({ error: "No data found." });
       } else {
@@ -39,17 +39,16 @@ class DayController {
   }
 
   // Retrieve a specific day's data
-  // Request body should contain the `date_id`
   async getDay(req, res) {
     try {
-      const { date_id } = req.body;
-      debugLog(`DayController.getDay Request body: ${date_id}`);
-      const data = await this.model.read(date_id);
+      const { id } = req.params;
+      debugLog(`DayController.getDay Request params: ${id}`);
+      const data = await this.model.read(id);
       if (!data) {
-        debugLog(`${date_id} not found.`);
+        debugLog(`${id} not found.`);
         return res.status(404).json({ error: "No data found." });
       } else {
-        debugLog(`${date_id} retrieved successfully.`);
+        debugLog(`${id} retrieved successfully.`);
         return res.status(200).json(data); // 200 - OK
       }
     } catch (err) {
@@ -63,8 +62,12 @@ class DayController {
   async addDay(req, res) {
     try {
       const day = req.body;
-      debugLog(`DayController.addDay Request body: ${day.date_id}`);
-      const data = await this.model.create(day); // returns a sequelize table object
+      if (!day || !day.date_id) {
+        // debugLog("Invalid request body.");
+        return res.status(400).json({ error: "Invalid request body." });
+      }
+      // debugLog(`DayController.addDay Request body: ${day.date_id}`);
+      const data = await this.model.create(day);
       if (!data) {
         debugLog("Day already exists.");
         return res.status(400).json({ error: "Day already exists." });
@@ -98,17 +101,31 @@ class DayController {
   }
 
   // Remove all day data
-  async clearDateData(req, res) {
+  async clearAllData(req, res) {
     try {
       await this.model.delete();
       return res.status(204); // 204 - No Content
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
   }
 
   async getEmotions(req, res) {
     // TODO: Get all emotions for a specific day
+    try {
+      const { date_id } = req.body;
+      debugLog(`DayController.getEmotions Request body: ${date_id}`);
+      const data = await this.model.read(date_id);
+      if (!data || !data.emotions) {
+        debugLog(`${date_id} not found.`);
+        return res.status(404).json({ error: "No data found." });
+      } else {
+        debugLog(`Emotions for ${date_id} retrieved successfully.`);
+        return res.status(200).json(data.emotions); // 200 - OK
+      }
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   }
 
   async getEmotion(req, res) {
@@ -132,4 +149,4 @@ class DayController {
   }
 }
 
-export default DayController;
+export default new DayController();

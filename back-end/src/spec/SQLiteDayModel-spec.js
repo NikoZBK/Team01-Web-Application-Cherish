@@ -31,10 +31,15 @@ describe("SQLiteDayModel CRUD Operations", () => {
     await model.create(day);
     day.setRating(5);
     day.setJournal("Updated journal");
-    await expectAsync(model.update(day)).toBeResolvedTo(day);
-    const updatedDay = await model.read(day.date_id);
-    expect(updatedDay.rating).toBe(5);
+    const updatedDay = await model.update(day);
+    expect(updatedDay.date_id).toBe(day.date_id);
+    expect(updatedDay.rating).toBe(day.rating);
+    expect(updatedDay.journal).toBe(day.journal);
     expect(updatedDay.journal).toBe("Updated journal");
+    // Confirm the update
+    const readDay = await model.read(day.date_id);
+    expect(readDay.date_id).toBe("10-10-2024");
+    expect(readDay.rating).toBe(5);
   });
 
   it("should delete a day", async () => {

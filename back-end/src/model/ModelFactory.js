@@ -2,7 +2,7 @@ import LocalDayModel from "./LocalDayModel.js";
 import SQLiteDayModel from "./SQLiteDayModel.js";
 
 class _ModelFactory {
-  async getModel(model = "local") {
+  async getModel(model = "sqlite") {
     switch (model) {
       case "local":
         return LocalDayModel;

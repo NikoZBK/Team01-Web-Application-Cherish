@@ -7,25 +7,54 @@ class _LocalDayModel {
     this.dateData = [];
     this.date_id = getToday();
   }
+
+  // Helper function to verify Day object
+  isValidDay(data) {
+    return (
+      typeof data.date_id === "string" &&
+      Array.isArray(data.emotions) &&
+      typeof data.rating === "number" &&
+      typeof data.journal === "string"
+    );
+  }
+
+  // Helper function to verify Emotion object
+  isValidEmotion(data) {
+    return (
+      typeof data.date_id === "string" &&
+      typeof data.emotion_id === "string" &&
+      typeof data.magnitude === "number" &&
+      typeof data.description === "string" &&
+      typeof data.timestamp === "string"
+    );
+  }
+
   // Creates a new day object and adds it to the calendar
   async create(data = null) {
     if (data === null) {
       // default to create a new day
       data = new Day();
-    } else if (!(data instanceof Day) && !(data instanceof Emotion)) {
+    } else if (!this.isValidDay(data) && !this.isValidEmotion(data)) {
       throw new Error(
         "Invalid data object. Must be an instance of Day or Emotion."
       );
     }
 
-    if (data instanceof Day) {
-      if (this.read(data.date_id)) {
-        return;
-      } else {
+    if (this.isValidDay(data)) {
+      const existingDay = await this.read(data.date_id);
+      if (!existingDay) {
+        console.log(`No day found for ${data.date_id}`);
+        // if day doesn't exist, add it
         this.dateData.push(data);
-        return data;
-      }
-    } else if (data instanceof Emotion) {
+      } else {
+        console.log(`Day already exists for ${data.date_id}`);
+        console.log(`this.dateData: ${JSON.stringify(this.dateData)}`);
+        // Update the existing day
+        console.log(`Updating existing day to: ${JSON.stringify(data)}`);
+        return await this.update(data);
+      } // otherwise ignore and return the existing day
+      return data;
+    } else if (this.isValidEmotion(data)) {
       const day = this.dateData.find((d) => d.date_id === data.date_id); // grab that emotion's day
       if (!day) {
         // Don't add the emotion if the day doesn't exist
@@ -37,6 +66,8 @@ class _LocalDayModel {
   }
   // Returns the specified day object from the calendar
   async read(id = null) {
+    // print out the contents of the current array
+    console.log(this.dateData);
     if (id) {
       return this.dateData.find((day) => day.date_id === id);
     }

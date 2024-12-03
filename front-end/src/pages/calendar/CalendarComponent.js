@@ -77,7 +77,9 @@ export class CalendarComponent extends BaseComponent {
   // Adds event listeners to the prev and next buttons as well as
   // the feature buttons
   _addEventListeners() {
-    this.addCustomEventListener(Events.LoadMainPage, (data) => this.loadPage(data));
+    this.addCustomEventListener(Events.LoadMainPage, (data) =>
+      this.loadPage(data)
+    );
 
     // Add event listener to the days container
     // When a day is clicked, load the day page and
@@ -86,8 +88,12 @@ export class CalendarComponent extends BaseComponent {
       const t = e.target;
       if (t.classList.contains("day")) {
         const date = t.dataset.date;
+        console.log(`dataset.date: ${date}`);
         // Restore the data for the selected day
         DATABASE.restoreDay(date).then((data) => {
+          console.log(
+            `data returned from restoreDay = ${JSON.stringify(data)}`
+          );
           console.log("Done!");
           this.update(Events.LoadDayPage, data);
         });
@@ -142,7 +148,8 @@ export class CalendarComponent extends BaseComponent {
 
     const nextDays = 7 - lastDayIndex - 1;
 
-    document.querySelector(".date h1").innerHTML = MONTHS[this.date.getMonth()] + " " + this.date.getFullYear();
+    document.querySelector(".date h1").innerHTML =
+      MONTHS[this.date.getMonth()] + " " + this.date.getFullYear();
     document.querySelector(".date p").innerHTML = new Date().toDateString();
 
     // **** Helper functions ****//
