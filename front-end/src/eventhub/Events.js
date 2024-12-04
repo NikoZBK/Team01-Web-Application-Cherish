@@ -8,7 +8,7 @@ export const Events = {
   LoadJournalPage: "LoadJournalPage", // Loads Journal Page, content based on current Day Page
   LoadCheckInPage: "LoadCheckInPage", // Loads Check-in Page
   LoadSummaryPage: "LoadSummaryPage", // Loads Summary Page, context based on all data stored
-
+  LoadQuote: "LoadQuote", 
   StoreData: "StoreData", // Async call to store any changes inputted by user
   ClearData: "ClearData", // Async call to clear all data stored in database
   RestoreData: "RestoreData", // Async call to restore/retrieve data

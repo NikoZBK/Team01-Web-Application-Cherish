@@ -2,6 +2,9 @@ import { Events } from "../../eventhub/Events.js";
 import { BaseComponent } from "../../BaseComponent.js";
 import { DATABASE } from "../../main.js";
 
+
+
+
 export const MONTHS = [
   "January",
   "February",
@@ -16,12 +19,37 @@ export const MONTHS = [
   "November",
   "December",
 ];
-
+const API_key= 'ZxGOe+KJv5SmlSdnVrswfQ==A311wlLd9vmgnYuW';
+const url = 'https://api.api-ninjas.com/v1/quotes?category=happiness';
+  
+fetch(url, {
+  headers: {
+    'Authorization': `Bearer ${API_key}` // Use the correct header format
+  }
+})
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then((data) => {
+    console.log(data);
+    const quote = data[0].quote;
+    const author = data[0].author;
+    document.querySelector('.quote-container').innerHTML = `<p>${quote}</p><p>${author}</p>`;
+  })
+  .catch((error) => {
+    console.log('Fetch error: ', error);
+  });
 export class CalendarComponent extends BaseComponent {
-  constructor(date) {
-    super("calendarPage", "./pages/calendar/stylesCalendar.css");
-    this.date = date; // Define `this.date` as a class property
-    this._loadFontAwesome();
+constructor(date) {
+  super("calendarPage", "./pages/calendar/stylesCalendar.css");
+  this.date = date; // Define `this.date` as a class property
+  this._loadFontAwesome();
+  this._buildHTML();
+  this.fetchQuote(); // Fetch quote first
+  this._render();    //
   }
 
   /**
@@ -37,6 +65,8 @@ export class CalendarComponent extends BaseComponent {
       document.head.appendChild(link);
     }
   }
+
+  
   /**
    * Navigates to the specified page by publishing an event to the EventHub.
    * Depending on the page parameter, it publishes different load page events.
@@ -45,10 +75,13 @@ export class CalendarComponent extends BaseComponent {
    * @param {string} page - The name of the page to navigate to.
    *                        Possible values are "check-in", "journal", "stats", "summary", or any other string for the main page.
    */
+  
 
   // Builds the HTML of the Calendar Page
-  _buildHTML() {
+  _buildHTML(quote) {
     return `<div class="calendar-container"><div class="welcome-back">Welcome back, Jack! How’s it going?</div>
+            <div class ='quote-container'>${quote} </div>
+
           <div class="calendar">
             <div class="month">
               <i class="fas fa-angle-left prev"></i>
