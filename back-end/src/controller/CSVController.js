@@ -16,8 +16,7 @@ export const exportCSV = async (req, res) => {
         9/8, blah blah blah, happy, 9
         9/9, more blah and blahing, sad, 3
         */
-
-
+       
         return convertToCSV(formatDays, fields); // Convert data to CSV format
     }
     catch (error) {
