@@ -21,11 +21,6 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
   role: {
     type: DataTypes.STRING,
     defaultValue: "user" // Roles: User, Admin
@@ -73,8 +68,8 @@ const Emotion = sequelize.define("Emotion", {
 });
 
 // Define the relationships
-User.hasMany(Day, { foreignKey: "user_id" });
-Day.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(Day, { foreignKey: "username" });
+Day.belongsTo(User, { foreignKey: "username" });
 
 Day.hasMany(Emotion, { foreignKey: "date_id" });
 Emotion.belongsTo(Day, { foreignKey: "date_id" });
@@ -93,28 +88,20 @@ class _SQLiteDayModel {
   }
 
   // User Authentication
+
+  // Checks if username already exists in the database
   async userExists(username) {
     return await User.findOne({ where: { username } });
-  }
-
-  async emailTaken(email) {
-    return await User.findOne({ where: { email } });
   }
 
   async createUser(user) {
     try {
       // Check if valid username and email exist
       const existsUser = await this.userExists(user.username);
-      const takenEmail = await this.emailTaken(user.email);
 
       if (existsUser) {
         debugLog(`Username ${user.username} already taken.`);
         return { success: false, message: "Username already taken." };
-      }
-
-      if (takenEmail) {
-        debugLog(`Email ${user.email} already in use.`);
-        return { success: false, message: "Email already in use." };
       }
 
       // Hash password and create user
@@ -168,6 +155,8 @@ class _SQLiteDayModel {
       if (!validPassword) {
         throw new Error("Invalid password");
       }
+
+
 
       // User has successfully logged in
       return {success: true, message: "Login successful", user};
