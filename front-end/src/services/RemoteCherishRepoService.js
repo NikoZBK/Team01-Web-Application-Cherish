@@ -31,7 +31,7 @@ export class RemoteCherishRepoService extends Service {
       debugLog(`Setting the cache...`);
       // debug output the cache
       console.log(`cache: ${cache}`);
-      this.update(Events.InitDataSuccess, cache);
+      this.update(Events.InitDataSuccess, data);
     } catch (err) {
       this.update(Events.InitDataFailed, err);
       throw new Error("Failed to fetch calendar: " + err);
@@ -62,7 +62,7 @@ export class RemoteCherishRepoService extends Service {
 
   async storeDay(data) {
     try {
-      const date_id = data?.date_id || data;
+      const date_id = data?.date_id || data; // check if data is an object or a string
       if (indexOfDayCache(date_id) === -1) {
         // not in cache
         debugLog(`Pushing to cache: ${date_id}`);
@@ -71,7 +71,7 @@ export class RemoteCherishRepoService extends Service {
         debugLog(`Updating cache: ${date_id}`);
         cache[indexOfDayCache(date_id)] = data; // update the cache
       }
-      console.log(`Storing day: ${date_id}`);
+
       const response = await fetch(`/v1/days/${date_id}`, {
         method: "POST",
         headers: {
@@ -79,6 +79,7 @@ export class RemoteCherishRepoService extends Service {
         },
         body: JSON.stringify(cache),
       });
+      console.log(`Storing day: ${date_id}`);
       this.update(Events.StoredDataSuccess);
       return await response.json();
     } catch (err) {

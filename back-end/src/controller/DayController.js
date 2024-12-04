@@ -66,6 +66,7 @@ class DayController {
   async addDay(req, res) {
     try {
       const day = req.body;
+      console.log(`day: ${day}`);
       if (!day || !day.date_id) {
         // debugLog("Invalid request body.");
         return res.status(400).json({ error: "Invalid request body." });

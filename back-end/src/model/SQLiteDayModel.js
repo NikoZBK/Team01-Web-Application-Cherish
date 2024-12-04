@@ -5,6 +5,7 @@ import { Sequelize, DataTypes } from "sequelize";
 // Initialize a new Sequelize instance with SQLite
 const sequelize = new Sequelize({
   dialect: "sqlite",
+  logging: false,
   // Create a test database if debug .env var is set to true
   storage: config.debug ? "database_test.sqlite" : "database.sqlite",
 });
@@ -90,15 +91,14 @@ class _SQLiteDayModel {
     try {
       const existingDay = await Day.findByPk(day.date_id);
       if (existingDay) {
-        return await this.update(day);
+        return await existingDay.update(day);
       }
       const newDay = await Day.create(day, {
         include: [Emotion],
       });
       return newDay.toJSON();
     } catch (error) {
-      console.error("Error creating day:", error.message);
-      return null;
+      return Promise.reject(error);
     }
   }
 
@@ -150,7 +150,7 @@ class _SQLiteDayModel {
       return day;
     } catch (error) {
       console.error("Error deleting data:", error.message);
-      return;
+      return null;
     }
   }
 }
