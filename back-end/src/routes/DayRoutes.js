@@ -9,7 +9,13 @@ class DayRoutes {
   }
 
   initializeRoutes() {
+
+    this.router.post("/v1/calendar", async (req, res) => {
+      await DayController.postUserCalendar(req, res);
+    })
+
     // Define the routes and connect them to controller methods
+
 
     // DESCRIPTION
     //   Get all days. This endpoint returns an object with a 'calendar' property
@@ -71,9 +77,17 @@ class DayRoutes {
     });
 
     this.router.get("/v1/users/:username", async (req, res) => {
-      debugLog(`GET /v1/users/:username`);
+      debugLog("GET /v1/users/:username");
       await DayController.getUserByUsername(req, res);
     })
+
+    this.router.post("/v1/users", async (req, res) => {
+      debugLog("POST /v1/users");
+      await DayController.registerAccount(req, res);
+    })
+
+
+    // /v1/users/:rthurston/calendar
   }
 
   getRouter() {
