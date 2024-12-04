@@ -1,6 +1,6 @@
 import config from "../../config/config.js";
 import { debugLog } from "../../config/debug.js";
-import { Sequelize, DataTypes } from "sequelize";
+import { Sequelize, DataTypes, Op } from "sequelize";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -213,6 +213,20 @@ class _SQLiteDayModel {
       console.error("Error deleting data:", error.message);
       return;
     }
+  }
+
+  async readYear(year) { // Match any date_id that ends with '-year'
+    const yearlyData = await Day.findAll({where: {date_id: {[Op.like]: `%-%-${year}`}}});
+    debugLog(`read: ${yearlyData}`);
+    debugLog(`typeof yearlyData: ${typeof yearlyData}`);
+    return yearlyData;
+  }
+
+  async readMonth(month, year) { //  Match any date_id in format 'month-xx-year'
+    const monthlyData = await Day.findAll({where: {date_id: {[Op.like]: `${month}-%-${year}`}}});
+    debugLog(`read: ${monthlyData}`);
+    debugLog(`typeof monthlyData: ${typeof monthlyData}`);
+    return monthlyData;
   }
 }
 

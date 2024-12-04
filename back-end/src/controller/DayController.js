@@ -61,17 +61,53 @@ class DayController {
     }
   }
 
-
+  // Gets all the data within a specified year
+  // Request body contains the year id
   async getYear(req, res) {
     // TODO: Get all data for a specific year
+    try {
+      const { year } = req.body
+      debugLog(`DayController.getYear Request body: ${year}`);
+
+      const data = await this.model.readYear(year);
+      if (!data) {
+        debugLog(`No data found in year ${year}`);
+        return res.status(404).json(factoryResponse(404, `No data found in year ${year}`));
+      }
+      debugLog(`Data within year ${year} retrieved successfully.`);
+      return res.status(200).json(data); // 200 - OK
+
+    } catch (error) {
+      debugLog(`Error retrieving year data: ${error.message}`);
+      return res.status(500).json(factoryResponse(500, error.message));
+    }
   }
 
+   // Gets all the data within a specified month
+  // Request body contains the month id
   async getMonth(req, res) {
     // TODO: Get all data for a specific month
+    try {
+      const { month } = req.body
+      debugLog(`DayController.getMonth Request body: ${month}`);
+
+      const data = await this.model.readMonth(month);
+      if (!data) {
+        debugLog(`No data found in month ${month}`);
+        return res.status(404).json(factoryResponse(404, `No data found in month ${year}`));
+      }
+      debugLog(`Data within month ${year} retrieved successfully.`);
+      return res.status(200).json(data); // 200 - OK
+
+    } catch (error) {
+      debugLog(`Error retrieving month data: ${error.message}`);
+      return res.status(500).json(factoryResponse(500, error.message));
+    }
   }
 
   async getWeek(req, res) {
     // TODO: Get all data for a specific week
+    
   }
 
   // Retrieve a specific day's data
