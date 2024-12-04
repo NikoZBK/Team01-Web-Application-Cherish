@@ -4,7 +4,7 @@ import { factoryResponse } from "../../authentication/middleware.js";
 
 class DayController {
   constructor() {
-    ModelFactory.getModel()
+    ModelFactory.getModel("sqlite")
       .then((model) => {
         this.model = model;
         debugLog(`DayController initialized with model: ${typeof model}`);
@@ -46,6 +46,17 @@ class DayController {
     }
     catch (error) {
       debugLog(`Error retrieving data: ${err.message}`);
+      return res.status(500).json(factoryResponse(500, error.message));
+    }
+  }
+
+  // Creates a new account ()
+  async registerAccount(req, res) {
+    try {
+      
+    }
+    catch (error) {
+      debugLog(`Error registering account: ${error.message}`);
       return res.status(500).json(factoryResponse(500, error.message));
     }
   }
