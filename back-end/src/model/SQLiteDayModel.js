@@ -33,6 +33,10 @@ const Day = sequelize.define("Day", {
     type: DataTypes.STRING,
     primaryKey: true,
   },
+  username: { // Foreign key to User model
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   rating: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -155,6 +159,8 @@ class _SQLiteDayModel {
       if (!validPassword) {
         throw new Error("Invalid password");
       }
+
+
 
 
 
