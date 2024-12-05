@@ -36,6 +36,19 @@ body {
   font-weight: bold;
   margin-bottom: 20px;
 }
+.quote-container {
+  display: flex;
+  background-color: aqua;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.quote-author {
+  margin-top: 10px; /* Add space above the author */
+  font-style: italic;
+}
 
 .calendarContainer {
   display: flex;

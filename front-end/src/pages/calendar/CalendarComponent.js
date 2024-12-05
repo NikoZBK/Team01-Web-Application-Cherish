@@ -19,36 +19,15 @@ export const MONTHS = [
   "November",
   "December",
 ];
-const API_key= 'ZxGOe+KJv5SmlSdnVrswfQ==A311wlLd9vmgnYuW';
-const url = 'https://api.api-ninjas.com/v1/quotes?category=happiness';
-  
-fetch(url, {
-  headers: {
-    'Authorization': `Bearer ${API_key}` // Use the correct header format
-  }
-})
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then((data) => {
-    console.log(data);
-    const quote = data[0].quote;
-    const author = data[0].author;
-    document.querySelector('.quote-container').innerHTML = `<p>${quote}</p><p>${author}</p>`;
-  })
-  .catch((error) => {
-    console.log('Fetch error: ', error);
-  });
+
+
 export class CalendarComponent extends BaseComponent {
 constructor(date) {
   super("calendarPage", "./pages/calendar/stylesCalendar.css");
   this.date = date; // Define `this.date` as a class property
   this._loadFontAwesome();
   this._buildHTML();
-  this.fetchQuote(); // Fetch quote first
+  this.fetchQuote()// Fetch quote first
   this._render();    //
   }
 
@@ -65,7 +44,44 @@ constructor(date) {
       document.head.appendChild(link);
     }
   }
-
+  fetchQuote() {
+    const API_KEY = 'ZxGOe+KJv5SmlSdnVrswfQ==A311wlLd9vmgnYuW';
+    const API_URL = 'https://api.api-ninjas.com/v1/quotes?category=happiness';
+  
+    // Publish LoadQuote event when starting
+    this.update(Events.LoadQuote);
+  
+    fetch(API_URL, {
+      headers: {
+        'X-Api-Key': API_KEY
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const quote = data[0].quote;
+      const author = data[0].author;
+      document.querySelector('.quote-container').innerHTML = `
+        <p>"${quote}"</p>
+       <p class="quote-author"><strong>- ${author}</strong></p>
+      `;
+  
+      // Publish LoadQuoteSuccess event
+      this.update(Events.LoadQuoteSuccess, { quote, author });
+    })
+    .catch(error => {
+      console.error('Error fetching the quote:', error);
+  
+      // Publish LoadQuoteFailed event
+      this.update(Events.LoadQuoteFailed, { error });
+    });
+  }
+  
+  
   
   /**
    * Navigates to the specified page by publishing an event to the EventHub.
@@ -79,7 +95,7 @@ constructor(date) {
 
   // Builds the HTML of the Calendar Page
   _buildHTML(quote) {
-    return `<div class="calendar-container"><div class="welcome-back">Welcome back, Jack! How’s it going?</div>
+    return `<div class="calendar-container"><div class="welcome-back">Welcome back, Jack! How’s it going?. Here is the quote of the day:</div>
             <div class ='quote-container'>${quote} </div>
 
           <div class="calendar">
