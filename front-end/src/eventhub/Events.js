@@ -37,4 +37,7 @@ export const Events = {
 
   StoreEmotionFailed: "StoreEmotionFailed", // Failed emotion store call
   RestoreEmotionFailed: "RestoreEmotionFailed", // Failed emotion restore call
+  //login
+  LoadLoginPage: "LoadLoginPage", // Event for loading the login page
+  UserAuthenticated: "UserAuthenticated", // Event for successful login
 };

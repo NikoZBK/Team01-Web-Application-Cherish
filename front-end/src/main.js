@@ -6,6 +6,7 @@ import { SummaryComponent } from "./pages/summary/SummaryComponent.js";
 import { EventHub } from "./eventhub/EventHub.js";
 import { Events } from "./eventhub/Events.js";
 import { getToday } from "./utils/dateUtils.js";
+import { LoginPage } from "./pages/LoginPage.js"; 
 // import IDBCherishRepoService from "./services/IDBCherishRepoService.js";
 import RemoteCherishRepoService from "./services/RemoteCherishRepoService.js";
 import { Day } from "./utils/Day.js";
@@ -41,6 +42,22 @@ const checkIn = new CheckInComponent();
 const summary = new SummaryComponent();
 
 // Retrieves data for the current day, on success passes data through an event
+const loadLoginPage = () => {
+  console.log("Loading Login Page");
+  new LoginPage(); // Render the login page
+};
+
+// Use EventHub to load the login page or other components dynamically
+hub.subscribe(Events.LoadLoginPage, loadLoginPage);
+
+// Check if the user is logged in, else load the login page
+const isAuthenticated = false; // Placeholder for actual auth check logic
+if (!isAuthenticated) {
+  hub.publish(Events.LoadLoginPage);
+} else {
+  console.log("User authenticated, loading application...");
+  hub.publish(Events.InitDataSuccess);
+}
 
 console.log("Everything loaded");
 
