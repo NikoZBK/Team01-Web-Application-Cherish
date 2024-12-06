@@ -1,30 +1,29 @@
-/* Server.js listens for requests on port 3000 by default */
-/* These requests are defined in DayRoutes.js */
+// Server.js
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import DayRoutes from "./routes/DayRoutes.js";
 
-// Declare and get the directory names - Liam
+// Get the directory name
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class Server {
-  /* TODO: */
   constructor() {
     this.app = express();
     this.configureMiddleware();
     this.setupRoutes();
   }
 
+  // Configure middleware for static files and JSON parsing
   configureMiddleware() {
-    // Static files from the front-end - Liam
+    // Serve static files from the front-end
     this.app.use(express.static(path.join(__dirname, "../../front-end/src")));
 
-    // Parses the json body and limits it to 10mb - Liam
+    // Parse JSON bodies, limited to 10mb
     this.app.use(express.json({ limit: "10mb" }));
 
-    // Serve JavaScript files with the correct MIME type - Niko
+    // Serve JavaScript files with the correct MIME type
     this.app.use((req, res, next) => {
       if (req.path.endsWith(".js")) {
         res.setHeader("Content-Type", "text/javascript");
@@ -51,16 +50,20 @@ class Server {
       next();
     });
 
-    // Logs the HTTP method and path of each request, then passes control to the next middleware. - Liam
     this.app.use((req, res, next) => {
       console.log(`${req.method} ${req.path}`);
       next();
     });
   }
 
-  // Setup the routes for server - Liam
+  // Setup the routes for the server
   setupRoutes() {
     this.app.use("/v1", DayRoutes);
+
+    // Serve the main HTML file for all other routes
+    // this.app.get("*", (req, res) => {
+    //   res.sendFile(path.join(__dirname, "../../front-end/src/index.html"));
+    // });
   }
 
   // Start the server on a specified port
