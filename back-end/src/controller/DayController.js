@@ -52,6 +52,7 @@ class DayController {
         return res.status(404).json({ error: "No data found." });
       } else {
         debugLog(`${id} retrieved successfully.`);
+        console.log("Day Data retrieved:", data); // for testing 
         return res.status(200).json(data); // 200 - OK
       }
     } catch (err) {
