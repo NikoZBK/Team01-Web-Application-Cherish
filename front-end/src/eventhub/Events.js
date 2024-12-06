@@ -31,4 +31,7 @@ export const Events = {
 
   StoreEmotionFailed: "StoreEmotionFailed", // Failed emotion store call
   RestoreEmotionFailed: "RestoreEmotionFailed", // Failed emotion restore call
+
+  RequestTrendAnalysis: "RequestTrendAnalysis",
+  TrendAnalysisResults: "TrendAnalysisResult"
 };
