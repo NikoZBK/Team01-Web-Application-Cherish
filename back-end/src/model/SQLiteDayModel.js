@@ -64,7 +64,38 @@ const Emotion = sequelize.define("Emotion", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+
 });
+
+// maybe try to add a week model!!!!!!!
+
+/// maybe try too keep track of the week.
+
+const Week = sequelize.define("Week", {
+  date_id: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+  },
+  // data that correspond for a week.
+  //average rating. 
+  // we need a new id. that keeps trakc of the week. and looks back at the prevoius week.
+  // create  a weekk model, then create a week day_route, so the server nows the server needs to get the week data. and 
+  // I might need create a function on sqliteDayModel that gets the week data.
+  // daycontroller new function that gets the week data.
+  // then create the week component.
+  // MAKE SURE I ADD THIS FOR THE ISSUE CREATE 4 NEW ISSEUS AND EACH OF THEM IS ABOUT THE FEATURE.
+  // WORRY ABOUT THIS TAKS !!!! 
+  rating: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  // key for the tables 
+  journal: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+});
+
 
 // Define the relationships
 // User.hasMany(Day, { foreignKey: "username" });
