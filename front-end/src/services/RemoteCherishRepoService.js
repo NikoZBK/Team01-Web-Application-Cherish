@@ -27,7 +27,7 @@ export class RemoteCherishRepoService extends Service {
       const response = await fetch("/v1/days");
       debugLog(`response: ${response.status}`);
       const data = await response.json();
-      data.forEach((day) => cache.push(JSON.stringify(day)));
+      // data.forEach((day) => cache.push(JSON.stringify(day)));
       debugLog(`Setting the cache...`);
       // debug output the cache
       console.log(`cache: ${cache}`);
