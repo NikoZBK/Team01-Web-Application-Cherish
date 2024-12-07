@@ -124,3 +124,4 @@ export class IDBService extends Service {
   }
 }
 export default IDBService;
+

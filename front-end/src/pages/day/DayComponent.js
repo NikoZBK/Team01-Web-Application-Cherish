@@ -2,6 +2,7 @@ import { Events } from "../../eventhub/Events.js";
 import { BaseComponent } from "../../BaseComponent.js";
 import { MONTHS } from "../calendar/CalendarComponent.js";
 import { DATABASE } from "../../main.js";
+import { debugLog } from "../../config/debug.js";
 
 // Converts date id into a readable Date (ex. 11-10-2024 => November 10, 2024)
 export function dateFormat(dataId) {
@@ -18,11 +19,12 @@ export class DayComponent extends BaseComponent {
     this.dateData = {};
   }
 
-
   // Methods
   // Removes the specified emotion element from the Emotion Log
   #deleteEmotion(emotion_entry) {
-    if (!confirm("Are you sure you want to delete?")) {return;} // Confirm deletion
+    if (!confirm("Are you sure you want to delete?")) {
+      return;
+    } // Confirm deletion
 
     this.dateData.emotions.splice(emotion_entry, 1);
 
@@ -110,7 +112,7 @@ export class DayComponent extends BaseComponent {
 
   #renderEmotions() {
     this.emotionLog.innerHTML = ""; // Clears html
-    if (!this.dateData.emotions || this.dateData.emotions.length === 0) {
+    if (!this.dateData["emotions"] || this.dateData["emotions"].length === 0) {
       this.emotionLog.textContent = "NO EMOTIONS LOGGED";
       return;
     }
@@ -197,7 +199,14 @@ export class DayComponent extends BaseComponent {
   }
 
   _addEventListeners() {
-    this.addCustomEventListener(Events.LoadDayPage, (data) => this.loadPage(data));
+    this.addCustomEventListener(Events.LoadDayPage, async (date_id) =>
+      // restore the day data from the database
+      DATABASE.restoreDay(date_id)
+        .then((data) => this.loadPage(data))
+        .catch((error) => {
+          console.error(error);
+        })
+    );
 
     document.addEventListener("DOMContentLoaded", () => {
       document
@@ -228,11 +237,9 @@ export class DayComponent extends BaseComponent {
 
   // Changes view to Day Page
   _render(data) {
-    if (data) this.dateData = data;
-
-    this.dateData["journal"] = this.dateData["journal"]
-      ? this.dateData.journal
-      : "";
+    console.log(`data no stringify=${data}`);
+    console.log(`data=${JSON.stringify(data)}`);
+    this.dateData = data;
 
     this.titleDate.textContent = dateFormat(this.dateData.date_id);
     this.journalEntry.textContent = this.dateData.journal;

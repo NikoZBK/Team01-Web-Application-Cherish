@@ -1,10 +1,15 @@
 import { EventHub } from "../eventhub/EventHub.js";
 import { Events } from "../eventhub/Events.js";
+import { Day } from "../utils/Day.js";
 
 const hub = EventHub.getInstance();
 
-hub.subscribe(Events.LoadNav, (data) => {
+hub.subscribe(Events.LoadNav, (data = null) => {
   function goToPage(page) {
+    if (data === null) {
+      // create a blank day object for today if needed
+      data = new Day();
+    }
     switch (page) {
       case "check-in":
         hub.publish(Events.LoadCheckInPage, data);

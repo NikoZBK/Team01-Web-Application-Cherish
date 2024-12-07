@@ -1,5 +1,5 @@
-/* The Model Factory Lets Us Swap Between Models */
-/* We can use the local model at first and swap to the SQLite model later */
+import LocalDayModel from "./LocalDayModel.js";
+import SQLiteDayModel from "./SQLiteDayModel.js";
 
 class _ModelFactory {
   async getModel(model = "sqlite") {

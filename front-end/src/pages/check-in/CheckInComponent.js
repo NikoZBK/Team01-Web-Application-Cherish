@@ -1,6 +1,7 @@
 import { Events } from "../../eventhub/Events.js";
 import { BaseComponent } from "../../BaseComponent.js";
 import { dateFormat } from "../day/DayComponent.js";
+import { debugLog } from "../../config/debug.js";
 
 // Gets current time, formats as (HH:MM)
 export function getCurrentTime() {
@@ -42,7 +43,13 @@ export class CheckInComponent extends BaseComponent {
   constructor() {
     super("checkInPage", "./pages/check-in/stylesCheckIn.css");
     this.dateData = {};
-    this.emotionData = [];
+    this.emotionData = {
+      date_id: "",
+      emotion_id: "",
+      magnitude: 5,
+      description: "",
+      timestamp: "",
+    };
     this.editMode = false;
     this.emotion_index = -1;
   }
@@ -145,7 +152,7 @@ export class CheckInComponent extends BaseComponent {
   // Method to add event listeners
   _addEventListeners() {
     //add event listeners for all pages
-    this.addCustomEventListener(Events.LoadCheckInPage, (data, emotion) => 
+    this.addCustomEventListener(Events.LoadCheckInPage, (data, emotion) =>
       this.loadPage(data, emotion)
     );
     this.addCustomEventListener(Events.StoreEmotionSuccess, () =>
@@ -167,11 +174,11 @@ export class CheckInComponent extends BaseComponent {
 
     // Listen for intensity slider change
     this.magnitudeSlider.addEventListener("input", (event) => {
-        if (this.emotionData.emotion_id === "neutral") {
-          this.emotionData.magnitude = 1;
-        } else {
-          this.emotionData.magnitude = event.target.value;
-        }
+      if (this.emotionData.emotion_id === "neutral") {
+        this.emotionData.magnitude = 1;
+      } else {
+        this.emotionData.magnitude = event.target.value;
+      }
     });
 
     // Listen for text area input for description
@@ -209,7 +216,13 @@ export class CheckInComponent extends BaseComponent {
 
   // Reset the check-in form
   _resetCheckIn() {
-    this.emotionData = { emotion_id: "", magnitude: 5, description: "" };
+    this.emotionData = {
+      date_id: "",
+      emotion_id: "",
+      magnitude: 5,
+      description: "",
+      timestamp: "",
+    };
     this.inputEmotions.forEach((input) => (input.checked = false));
 
     // ROBBIE CHANGED: Added Header to Display current emotion picked
@@ -235,6 +248,10 @@ export class CheckInComponent extends BaseComponent {
     if (!this.dateData.emotions) {
       this.dateData.emotions = [];
     }
+
+    // Ensure the emotion has a date_id
+    this.emotionData["date_id"] = this.dateData.date_id;
+
     // If not in edit mode, push the new emotion to the array
     if (!this.editMode) {
       // Clone the emotionData object before pushing it to the array
@@ -263,18 +280,20 @@ export class CheckInComponent extends BaseComponent {
       this.dateData.emotions &&
       this.dateData.emotions.length > this.emotion_index &&
       this.emotion_index >= 0
-    ) { // Edit Mode
+    ) {
+      // Edit Mode
       console.log("Loading emotion: ", this.emotion_index);
       this.editMode = true;
       this.emotionData = this.dateData.emotions[this.emotion_index];
-      this.prevData = {...this.emotionData}; // Copy of emotion data in case user cancels changes
+      this.prevData = { ...this.emotionData }; // Copy of emotion data in case user cancels changes
 
       document.getElementById(this.emotionData.emotion_id).checked = true;
 
-      this.magnitudeSlider.value =this.emotionData.magnitude;
-      this.checkInDescription.value =this.emotionData.description;
+      this.magnitudeSlider.value = this.emotionData.magnitude;
+      this.checkInDescription.value = this.emotionData.description;
       this.selectEmotionLabel.textContent = this.emotionData.emotion_id;
-    } else { // Normal Mode
+    } else {
+      // Normal Mode
       this.editMode = false;
       console.log("Loading default check in settings.");
       this._resetCheckIn();
@@ -284,8 +303,12 @@ export class CheckInComponent extends BaseComponent {
   // Render the check-in page
   _render(data, emotion_index) {
     this.emotion_index = emotion_index;
-    console.log("emotion_index: ", emotion_index);
     this.dateData = data;
+    debugLog(
+      `Rendering Check In Page: this.dateData = ${JSON.stringify(
+        this.dateData
+      )}`
+    );
     this.prevData = {};
     this._loadEmotion();
     this.titleDate.textContent = dateFormat(data.date_id);

@@ -25,7 +25,7 @@ class DayRoutes {
 
     // Add a new day
     this.router.post("/days/:id", async (req, res) => {
-      debugLog(`POST /days/:${req.params.id}`);
+      debugLog(`POST /days/${req.params.id}`);
       await DayController.addDay(req, res);
     });
 

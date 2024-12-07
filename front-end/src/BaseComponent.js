@@ -1,4 +1,5 @@
 import { EventHub } from "./eventhub/EventHub.js";
+import { DATABASE } from "./main.js";
 
 export class BaseComponent {
   /**

@@ -1,6 +1,3 @@
-/* The Day Controller places calls to Model */
-/* DayRoutes.js tells the Day Controller which calls to place  */
-
 import ModelFactory from "../model/ModelFactory.js";
 import { debugLog } from "../../config/debug.js";
 
@@ -22,7 +19,11 @@ class DayController {
         return res.status(404).json({ error: "No data found." });
       } else {
         debugLog("All data retrieved successfully.");
-        return res.status(200).json(data); // 200 - OK
+        // Ensure data is an array of plain objects
+        const plainData = data.map((item) =>
+          item.toJSON ? item.toJSON() : item
+        );
+        return res.status(200).json(plainData); // 200 - OK
       }
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -52,7 +53,6 @@ class DayController {
         return res.status(404).json({ error: "No data found." });
       } else {
         debugLog(`${id} retrieved successfully.`);
-        console.log("Day Data retrieved:", data); // for testing 
         return res.status(200).json(data); // 200 - OK
       }
     } catch (err) {
@@ -66,6 +66,7 @@ class DayController {
   async addDay(req, res) {
     try {
       const day = req.body;
+      console.log(`day: ${day}`);
       if (!day || !day.date_id) {
         // debugLog("Invalid request body.");
         return res.status(400).json({ error: "Invalid request body." });

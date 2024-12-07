@@ -145,10 +145,10 @@ November 17, 2024
 
 - **Task**: Revamp css of the entire app for resizable windows and more consistent styling.
 - **Details**: Created a new branch `css-niko` to revamp the css of the entire app. The goal is to make the app more responsive and consistent across different screen sizes.
-- **Link to Commit**: [Commit]()
+- **Link to Commit**: [Commit](TODO)
 
-December 4, 2024
+November 21, 2024
 
-- **Task**: Implement the remote service.
-- **Details**: Created a new branch `126-104-medium-task-implement-remote-service` to implement the remote service. The remote service is responsible for fetching and sending data to the server. The remote service is used by the front end to fetch and send data to the server.
-- **Link to Commit**: [Commit]()
+- **Task**: Begin work on the backend.
+- **Details**: Created a new branch `backend-scaffolding-niko` to start work on the backend. The backend will be responsible for storing user data and serving it to the frontend.
+- **Link to Commit**: [Commit](TODO)
