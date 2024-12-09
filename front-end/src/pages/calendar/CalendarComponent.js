@@ -22,6 +22,10 @@ export class CalendarComponent extends BaseComponent {
     super("calendarPage", "./pages/calendar/stylesCalendar.css");
     this.date = date; // Define `this.date` as a class property
     this._loadFontAwesome();
+    this.fetchQuote();
+    this._loadFontAwesome();
+    this._buildHTML();
+    this._render();
   }
 
   /**
@@ -46,9 +50,48 @@ export class CalendarComponent extends BaseComponent {
    *                        Possible values are "check-in", "journal", "stats", "summary", or any other string for the main page.
    */
 
+  fetchQuote() {
+    const API_KEY = 'ZxGOe+KJv5SmlSdnVrswfQ==A311wlLd9vmgnYuW';
+    const API_URL = 'https://api.api-ninjas.com/v1/quotes?category=happiness';
+  
+    // Publish LoadQuote event when starting
+    this.update(Events.LoadQuote);
+  
+    fetch(API_URL, {
+      headers: {
+        'X-Api-Key': API_KEY
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const quote = data[0].quote;
+      const author = data[0].author;
+      document.querySelector('.quote-container').innerHTML = `
+        <p>"${quote}"</p>
+       <p class="quote-author"><strong>- ${author}</strong></p>
+      `;
+  
+      // Publish LoadQuoteSuccess event
+      this.update(Events.LoadQuoteSuccess, { quote, author });
+    })
+    .catch(error => {
+      console.error('Error fetching the quote:', error);
+  
+      // Publish LoadQuoteFailed event
+      this.update(Events.LoadQuoteFailed, { error });
+    });
+  }
+  
+
   // Builds the HTML of the Calendar Page
   _buildHTML() {
     return `<div class="calendar-container"><div class="welcome-back">Welcome back, Jack! How’s it going?</div>
+            <div class="quote-container"> </div>
           <div class="calendar">
             <div class="month">
               <i class="fas fa-angle-left prev"></i>
