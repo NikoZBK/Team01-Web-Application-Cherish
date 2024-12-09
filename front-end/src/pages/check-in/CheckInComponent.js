@@ -45,6 +45,7 @@ export class CheckInComponent extends BaseComponent {
     this.emotionData = [];
     this.editMode = false;
     this.emotion_index = -1;
+    this.selectedEmotion =null;
   }
 
   // Build HTML structure for the check-in page
@@ -190,11 +191,60 @@ export class CheckInComponent extends BaseComponent {
 
       this._resetCheckIn();
     });
+    const emotions = ['Happy', 'Neutral', 'Anxious', 'Sad', 'Angry'];
+    emotions.forEach(emotion => {
+      const radioButton = document.getElementById(emotion);
+      radioButton.addEventListener('change', () => {
+        this.selectedEmotion = emotion;
+        document.getElementById('selectedEmotion').textContent = `You are feeling ${emotion}`;
+        this.storeEmotion(emotion);
+        this.checkConsecutiveSadDays();
+      });
+    });
+  
 
     // Confirm button listener
     this.confirmButton.addEventListener("click", () => {
       this._submitCheckIn(this.editMode);
     });
+  }
+  storeEmotion(emotion) {
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    localStorage.setItem(today, emotion);
+  }
+
+  // Check if a sad emotion has been picked for more than three consecutive days
+  checkConsecutiveSadDays() {
+    const today = new Date();
+    let sadCount = 0;
+
+    for (let i = 0; i < 4; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateString = date.toISOString().split('T')[0];
+      const emotion = localStorage.getItem(dateString);
+
+      if (emotion === 'Sad') {
+        sadCount++;
+      } else {
+        break;
+      }
+    }
+
+    if (sadCount >= 3) {
+      this.showNotification();
+    }
+  }
+
+  // Show a pop-up notification
+  showNotification() {
+    alert("You've been feeling sad for more than 3 days in a row. Remember, it's okay to seek help and talk to someone about how you're feeling.");
+  }
+
+  // Render the check-in page
+  render() {
+    document.body.innerHTML = this._buildHTML();
+    this._addEventListeners();
   }
 
   _createElementObjs() {
