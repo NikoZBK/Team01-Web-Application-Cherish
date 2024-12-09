@@ -78,7 +78,7 @@ const Week = sequelize.define("Week", {
   },
   // data that correspond for a week.
   //average rating. 
-  // we need a new id. that keeps trakc of the week. and looks back at the prevoius week.
+  // we need a new id. that keeps track of the week. and looks back at the prevoius week.
   // create  a weekk model, then create a week day_route, so the server nows the server needs to get the week data. and 
   // I might need create a function on sqliteDayModel that gets the week data.
   // daycontroller new function that gets the week data.
@@ -103,6 +103,7 @@ const Week = sequelize.define("Week", {
 
 Day.hasMany(Emotion, { foreignKey: "date_id" });
 Emotion.belongsTo(Day, { foreignKey: "date_id" });
+Week.hasMany(Emotion, { foreignKey: "date_id" });
 
 class _SQLiteDayModel {
   constructor() {}
@@ -113,8 +114,7 @@ class _SQLiteDayModel {
     await sequelize.sync({ force: fresh });
     // debugLog("All models were synchronized successfully.");
     if (fresh) {
-      await this.delete();
-
+      await this.delete();M
       // Create test data
       await this.create({
         date_id: "10-10-1010",
