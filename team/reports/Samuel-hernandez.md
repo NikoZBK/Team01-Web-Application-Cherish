@@ -50,4 +50,8 @@
  - **Task** : Got the api call working and fully implemented the motivational quote.
  - **Link** : Here is the link of the commit: https://github.com/rthurston1/Team01-Web-Application-Cherish/commit/b39c0e865835dce7a87dcb8a7588977ea143dcbd
 
+## December 9,2024
+ - **Task**: Fetchquote function and api fully implemented. 
+ - **Link**: Here is the link of the commit : https://github.com/rthurston1/Team01-Web-Application-Cherish/commit/90bd8a6990eecd8c74280d7b931d3f0c428b4f61
+ 
  
