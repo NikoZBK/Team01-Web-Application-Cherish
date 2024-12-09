@@ -53,39 +53,54 @@ export class CalendarComponent extends BaseComponent {
   fetchQuote() {
     const API_KEY = 'ZxGOe+KJv5SmlSdnVrswfQ==A311wlLd9vmgnYuW';
     const API_URL = 'https://api.api-ninjas.com/v1/quotes?category=happiness';
+    
+    const quoteData = JSON.parse(localStorage.getItem('dailyQuote')) || {};
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   
-    // Publish LoadQuote event when starting
-    this.update(Events.LoadQuote);
+    if (quoteData.date === today) {
+      // Use the stored quote
+      this.displayQuote(quoteData.quote, quoteData.author);
+      this.update(Events.LoadQuoteSuccess, { quote: quoteData.quote, author: quoteData.author });
+    } else {
+      // Fetch a new quote
+      this.update(Events.LoadQuote);
   
-    fetch(API_URL, {
-      headers: {
-        'X-Api-Key': API_KEY
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      const quote = data[0].quote;
-      const author = data[0].author;
-      document.querySelector('.quote-container').innerHTML = `
-        <p>"${quote}"</p>
-       <p class="quote-author"><strong>- ${author}</strong></p>
-      `;
+      fetch(API_URL, {
+        headers: {
+          'X-Api-Key': API_KEY
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const quote = data[0].quote;
+        const author = data[0].author;
+        this.displayQuote(quote, author);
   
-      // Publish LoadQuoteSuccess event
-      this.update(Events.LoadQuoteSuccess, { quote, author });
-    })
-    .catch(error => {
-      console.error('Error fetching the quote:', error);
+        // Store the new quote and date
+        localStorage.setItem('dailyQuote', JSON.stringify({ date: today, quote, author }));
   
-      // Publish LoadQuoteFailed event
-      this.update(Events.LoadQuoteFailed, { error });
-    });
+        this.update(Events.LoadQuoteSuccess, { quote, author });
+      })
+      .catch(error => {
+        console.error('Error fetching the quote:', error);
+        this.update(Events.LoadQuoteFailed, { error });
+      });
+    }
   }
+  
+  // Helper function to display the quote
+  displayQuote(quote, author) {
+    document.querySelector('.quote-container').innerHTML = `
+      <p>"${quote}"</p>
+      <p class="quote-author"><strong>- ${author}</strong></p>
+    `;
+  }
+  
   
 
   // Builds the HTML of the Calendar Page
