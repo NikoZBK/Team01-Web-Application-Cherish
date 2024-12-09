@@ -48,7 +48,7 @@ body {
 .quote-author {
   margin-top: 10px; /* Add space above the author */
   font-style: italic;
-}
+} 
 
 .calendarContainer {
   display: flex;
