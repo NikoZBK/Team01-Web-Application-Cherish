@@ -66,5 +66,20 @@
 
 ### November 17, 2024
   - **Task**: fixed slider not disabling with neutral selected, updated notes from team meeting, updated sequence diagram, top 3 commits 
-  - **Details**: 
+  - **Details**:
 
+### November 28, 2024
+  - **Task**: Created issue feature proposal for Emotion Trend Analysis 
+  - **Details**: Emotion Trend Analysis will allow users to monitor emotional patterns and trends over any given date range. A user will select a date range, and based on that range, emotion data will be aggregated and converted into statistics
+
+ ### December 5, 2024
+  - **Task**: Working on Emotion Trend Analysis , created new feature branch 
+  - **Details**: Experimented with backend files
+
+ ### December 6, 2024
+  - **Task**: Working on Emotion Trend Analysis 
+  - **Details**: Experimented with backend files
+
+ ### December 9, 2024
+  - **Task**: Working on Emotion Trend Analysis 
+  - **Details**: Scrapped old branch since many changes were made to main and began new approach to feature. Got help from Niko on implementation outline. 
