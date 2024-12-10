@@ -60,7 +60,7 @@ class Server {
 
   // Setup the routes for server - Liam
   setupRoutes() {
-    this.app.use("/v1", DayRoutes);
+    this.app.use("/", DayRoutes);
   }
 
   // Start the server on a specified port
