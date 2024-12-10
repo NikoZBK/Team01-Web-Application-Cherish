@@ -7,11 +7,16 @@ import { EventHub } from "./eventhub/EventHub.js";
 import { Events } from "./eventhub/Events.js";
 import { IDBService } from "./services/IDBService.js";
 import { LoginComponent } from "./pages/log-in/LoginComponent.js";
+import { RemoteService } from "./services/RemoteService.js";
+
 
 
 const hub = EventHub.getInstance();
 const header = document.querySelector(".page-header");
 const nav = document.querySelector(".nav");
+
+
+
 
 // Initially hide header and nav
 header.style.display = "none";
@@ -65,7 +70,7 @@ hub.subscribe(Events.InitDataFailed, () => {
   console.log("Failed to initialize database")
 });
 
-export const DATABASE = new IDBService();
+export const DATABASE = new RemoteService();
 const today = new Date();
 
 const dateArr = [today.getMonth() + 1, today.getDate(), today.getFullYear()];
