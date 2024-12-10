@@ -34,6 +34,8 @@ export class LoginComponent extends BaseComponent {
       const password = document.getElementById("password").value.trim();
 
       if (this._validateCredentials(username, password)) {
+        DATABASE.storeUser({username, password});
+
         this.update(Events.LoginSuccess, { username }); // Notify other components of login success
         loginError.classList.add("hidden"); // Hide error message
       } else {

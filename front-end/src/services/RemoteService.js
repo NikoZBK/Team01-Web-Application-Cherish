@@ -3,21 +3,22 @@ import Service from "./Service.js";
 import { debugLog } from "../config/debug.js";
 
 export class RemoteService extends Service {
-  DAYS_ENDPOINT = "/v1/days/";
-
   constructor() {
     super();
 
+    this.USER_ENDPOINT = "localhost:3000/v1/users/";
+    this.DAYS_ENDPOINT = "localhost:3000/v1/days/";
+
     // Initialize the database
-    this._initCalendar()
-      .then(() => {
-        this.addSubscriptions();
-        debugLog("Database events initialized");
-      })
-      .catch((error) => {
-        debugLog("Failed to initialize database");
-        console.error(error);
-      });
+    // this._initCalendar()
+    //   .then(() => {
+    //     this.addSubscriptions();
+    //     debugLog("Database events initialized");
+    //   })
+    //   .catch((error) => {
+    //     debugLog("Failed to initialize database");
+    //     console.error(error);
+    //   });
   }
 
   addSubscriptions() {
@@ -38,7 +39,7 @@ export class RemoteService extends Service {
   async _initCalendar() {
     return new Promise(async (resolve, reject) => {
       try {
-        const request = await fetch(DAYS_ENDPOINT);
+        const request = await fetch(this.DAYS_ENDPOINT);
 
         if (request.ok) {
           const data = await request.json();
@@ -69,7 +70,7 @@ export class RemoteService extends Service {
     return new Promise(async (resolve, reject) => {
       try {
         debugLog(`restoreDay(${date_id})`);
-        const request = await fetch(`${DAYS_ENDPOINT}${date_id}`);
+        const request = await fetch(`${this.DAYS_ENDPOINT}${date_id}`);
 
         if (request.ok) {
           debugLog(`restoreDay(${date_id}) request.ok`);
@@ -105,7 +106,7 @@ export class RemoteService extends Service {
       debugLog(`storeDay(${data.date_id})`);
       try {
         const date_id = data?.date_id || data;
-        const request = await fetch(`${DAYS_ENDPOINT}${date_id}`, {
+        const request = await fetch(`${this.DAYS_ENDPOINT}${date_id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -156,6 +157,42 @@ export class RemoteService extends Service {
         reject(`Failed to clear data: ${error}`);
       }
     });
+  }
+
+  /**
+   * (Function written by Robbie Thurston @rthurston1)
+   * 
+   * Sends a POST request to the "/v1/users/" endpoint to store a newly registered user into the database.
+   * On success, it adds the users to the database and returns the User object with a single parameter of the 
+   * username.
+   * 
+   * 
+   * @param {Object} data {username, password}
+   * @returns 
+   */
+  async storeUser(data) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const request = await fetch(this.USER_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (request.ok) {
+
+        }
+
+      } catch (error) {
+        reject(`Failed to store user: ${error}`);
+      }
+    });
+  }
+
+  async restoreUser() {
+
   }
 }
 export default RemoteService;
