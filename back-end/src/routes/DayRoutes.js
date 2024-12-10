@@ -57,15 +57,15 @@ class DayRoutes {
     );
 
     // Gets a specified day based on it's id
-    this.router.get(
-      "/v1/days/:username/:date_id(\\d{2}-\\d{2}-\\d{4})",
-      async (request, response) => {
-        debugLog(
-          `GET /v1/days/${request.params.username}/${request.params.date_id}`
-        );
-        DayController.getDay(request, response);
-      }
-    );
+    // this.router.get(
+    //   "/v1/days/:username/:date_id(\\d{2}-\\d{2}-\\d{4})",
+    //   async (request, response) => {
+    //     debugLog(
+    //       `GET /v1/days/${request.params.username}/${request.params.date_id}`
+    //     );
+    //     DayController.getDay(request, response);
+    //   }
+    // );
 
     // Gets all the days in the specified month in a year
     this.router.get(
