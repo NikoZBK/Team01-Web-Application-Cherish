@@ -124,10 +124,9 @@ export class DayComponent extends BaseComponent {
 
       emotionEntry.innerHTML = `
        <section>
-       <div class="emotion-btns">
-
-        <img src="./img/check-in-icon.svg" alt="edit entry" id="check-in-icon" onclick="">
-        <img src="./img/x-icon.svg" alt="delete entry" id="delete-icon" onclick="">
+ <div class="emotion-btns" data-hover="Edit or Delete">
+      <img src="./img/check-in-icon.svg" alt="edit entry" id="check-in-icon" onclick="">
+      <img src="./img/x-icon.svg" alt="delete entry" id="delete-icon" onclick="">
        </div>
         
           <ul>
@@ -154,7 +153,8 @@ export class DayComponent extends BaseComponent {
       // Set Data
       time.textContent = "Time: " + emotion.timestamp;
       rating.textContent = "Rating: " + emotion.magnitude;
-      description.textContent = "Description: " + emotion.description;
+      description.textContent =
+        "Description: " + (emotion.description || "N/A"); // if description is empty, display "N/A"
 
       image.src = `img/${emotion.emotion_id}.gif`;
       image.alt = emotion.emotion_id;
@@ -199,13 +199,8 @@ export class DayComponent extends BaseComponent {
   }
 
   _addEventListeners() {
-    this.addCustomEventListener(Events.LoadDayPage, async (date_id) =>
-      // restore the day data from the database
-      DATABASE.restoreDay(date_id)
-        .then((data) => this.loadPage(data))
-        .catch((error) => {
-          console.error(error);
-        })
+    this.addCustomEventListener(Events.LoadDayPage, (data) =>
+      this.loadPage(data)
     );
 
     document.addEventListener("DOMContentLoaded", () => {

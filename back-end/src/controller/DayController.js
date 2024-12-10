@@ -1,156 +1,196 @@
+/* The Day Controller places calls to Model */
+/* DayRoutes.js tells the Day Controller which calls to place  */
 import ModelFactory from "../model/ModelFactory.js";
 import { debugLog } from "../../config/debug.js";
 
 class DayController {
   constructor() {
-    ModelFactory.getModel()
-      .then((model) => {
-        this.model = model;
-        debugLog(`DayController initialized.`);
-      })
-      .catch((err) => console.error("Error initializing model: ", err));
+    this.initializeModel("sqlite-fresh");
   }
 
-  async getAllData(req, res) {
+  async initializeModel(modelType) {
     try {
-      const data = await this.model.read();
-      if (!data || data.length === 0) {
-        debugLog("No data found.");
-        return res.status(404).json({ error: "No data found." });
+      this.model = await ModelFactory.getModel(modelType);
+      debugLog(`DayController initialized with ${modelType}`, "INFO");
+    } catch (err) {
+      debugLog(`Error initializing DayController: ${err}`, "ERROR");
+      throw new Error("Error initializing Model in DayController: " + err);
+    }
+  }
+
+  setModel(model) {
+    this.model = model;
+  }
+
+  // Handles the request and response for each method
+  // Author: @nikozbk
+  async handleRequest(request, response, modelMethod, methodName, ...params) {
+    debugLog(`DayController.${methodName}`, "CALL");
+    try {
+      const data = await modelMethod(...params);
+      if (!data.success) {
+        debugLog(`Bad Request: ${data.error}`, "INFO");
+        response.status(methodName === "loginUser" ? 401 : 400).json(data);
       } else {
-        debugLog("All data retrieved successfully.");
-        // Ensure data is an array of plain objects
-        const plainData = data.map((item) =>
-          item.toJSON ? item.toJSON() : item
-        );
-        return res.status(200).json(plainData); // 200 - OK
+        debugLog(`Success: ${JSON.stringify(data)}`, "INFO");
+        response.setHeader("Content-Type", "application/json");
       }
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
+      return response.json(data);
+    } catch (error) {
+      debugLog(error, "ERROR");
+      response.status(500).send(`Error in DayController.${methodName}`);
     }
   }
 
-  async getYear(req, res) {
-    // TODO: Get all data for a specific year
+  // Gets all users in the database (does not include their day data)
+  // Author: @nikozbk
+  async getAllUsers(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.getAllUsers.bind(this.model),
+      "getAllUsers"
+    );
   }
 
-  async getMonth(req, res) {
-    // TODO: Get all data for a specific month
+  // Gets a user from the database
+  // Request param contains the username
+  // Author: @nikozbk
+  async getUserByUsername(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.getUser.bind(this.model),
+      "getUserByUsername",
+      request.params.username
+    );
   }
 
-  async getWeek(req, res) {
-    // TODO: Get all data for a specific week
+  /**
+   * Adds a new user into the database and returns a JWT session token
+   * Request body contains the username and password (password needs to be encrypted)
+   */
+  async registerUser(request, response) {
+    debugLog(`DayController.registerUser`);
+    // TODO: Implement this method
   }
 
-  // Retrieve a specific day's data
-  async getDay(req, res) {
-    try {
-      const { id } = req.params;
-      debugLog(`DayController.getDay Request params: ${id}`);
-      const data = await this.model.read(id);
-      if (!data) {
-        debugLog(`${id} not found.`);
-        return res.status(404).json({ error: "No data found." });
-      } else {
-        debugLog(`${id} retrieved successfully.`);
-        return res.status(200).json(data); // 200 - OK
-      }
-    } catch (err) {
-      debugLog(`Error retrieving data: ${err.message}`);
-      return res.status(500).json({ error: err.message });
-    }
+  /**
+   * Attempts to login in the user and returns all of their data
+   * Request body contains a username and password inputted by the user
+   * Author: @nikozbk
+   */
+  async loginUser(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.loginUser.bind(this.model),
+      "loginUser",
+      request.body.username,
+      request.body.password
+    );
   }
 
-  // Add a new day's data
-  // Request body should contain the `day` object to add
-  async addDay(req, res) {
-    try {
-      const day = req.body;
-      console.log(`day: ${day}`);
-      if (!day || !day.date_id) {
-        // debugLog("Invalid request body.");
-        return res.status(400).json({ error: "Invalid request body." });
-      }
-      // debugLog(`DayController.addDay Request body: ${day.date_id}`);
-      const data = await this.model.create(day);
-      if (!data) {
-        debugLog("Day already exists.");
-        return res.status(400).json({ error: "Day already exists." });
-      } else {
-        debugLog(`${day.date_id} added successfully.`);
-        return res.status(201).json(data); // 201 - Created
-      }
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  /**
+   * Posts the user's data
+   * Request params contains the username
+   * Author: @nikozbk
+   */
+  async postUserData(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.saveUser.bind(this.model),
+      "postUserData",
+      request.params.username
+    );
   }
 
-  // Remove a specific day's data
-  // Request body should contain the `date_id`
-  async removeDay(req, res) {
-    try {
-      const { date_id } = req.body;
-      debugLog(`DayController.removeDay Request body: ${date_id}`);
-      const data = await this.model.read(date_id);
-      if (!data) {
-        debugLog(`${date_id} not found.`);
-        return res.status(404).json({ error: "No data found." });
-      } else {
-        await this.model.delete(data);
-        debugLog(`${date_id} removed successfully.`);
-        return res.status(200).json(data); // 200 - OK
-      }
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  /**
+   * Gets all the user's data
+   * Request params contains the username
+   * Author: @nikozbk
+   */
+  async getUserData(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.getUserData.bind(this.model),
+      "getUserData",
+      request.params.username
+    );
   }
 
-  // Remove all day data
-  async clearAllData(req, res) {
-    try {
-      await this.model.delete();
-      return res.status(204); // 204 - No Content
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  /**
+   * Saves a day into the database
+   * Request params contains the username and date_id
+   * Author: @nikozbk
+   */
+  async postDay(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.saveDay.bind(this.model),
+      "postDay",
+      request.params.username,
+      request.body
+    );
   }
 
-  async getEmotions(req, res) {
-    // TODO: Get all emotions for a specific day
-    try {
-      const { date_id } = req.body;
-      debugLog(`DayController.getEmotions Request body: ${date_id}`);
-      const data = await this.model.read(date_id);
-      if (!data || !data.emotions) {
-        debugLog(`${date_id} not found.`);
-        return res.status(404).json({ error: "No data found." });
-      } else {
-        debugLog(`Emotions for ${date_id} retrieved successfully.`);
-        return res.status(200).json(data.emotions); // 200 - OK
-      }
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  /**
+   * Gets a day from the database
+   * Request params contains the username and date_id
+   */
+  async getDay(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.getDay.bind(this.model),
+      "getDay",
+      request.params.username,
+      request.params.date_id
+    );
   }
 
-  async getEmotion(req, res) {
-    // TODO: Get a specific emotion for a specific day
+  /**
+   * Gets all the days in a month
+   * Request params contains the username, a month, and a year
+   */
+  async getDaysOfMonth(request, response) {
+    await this.handleRequest(
+      request,
+      response,
+      this.model.getDaysOfMonth.bind(this.model),
+      "getDaysOfMonth",
+      request.params.username,
+      request.params.month,
+      request.params.year
+    );
   }
 
-  async clearEmotions(req, res) {
-    // TODO: Clear all emotions for a specific day
+  /**
+   * Gets all the days in a year
+   * Request params contains the username and a year
+   */
+  async getDaysOfYear(request, response) {
+    this.handleRequest(
+      request,
+      response,
+      this.model.getDaysOfYear.bind(this.model),
+      "getDaysOfYear",
+      request.params.username,
+      request.params.year
+    );
   }
-  async clearEmotion(req, res) {
-    // TODO: Clear a specific emotion for a specific day
+
+  async addEmotion(request, response) {
+    debugLog(`DayController.addEmotion`);
+    // TODO: Implement this method
   }
-  async addEmotions(req, res) {
-    // TODO: Add an emotions collection to a specific day
-  }
-  async addEmotion(req, res) {
-    // TODO: Add an emotion to a specific day
-  }
-  async updateEmotion(req, res) {
-    // TODO: Update an emotion for a specific day
+
+  async deleteEmotion(request, response) {
+    debugLog(`DayController.deleteEmotion`);
+    // TODO: Implement this method
   }
 }
 

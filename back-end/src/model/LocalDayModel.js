@@ -4,6 +4,7 @@ import { Emotion } from "../../../front-end/src/utils/Emotion.js";
 
 class _LocalDayModel {
   constructor() {
+    this.name = "LocalDayModel";
     this.dateData = [];
     this.date_id = getToday();
   }

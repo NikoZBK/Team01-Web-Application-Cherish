@@ -1,10 +1,15 @@
-export function createMockRequestResponse(body = {}) {
-  const req = { body };
+export function createMockRequestResponse(params = {}) {
+  const req = {
+    body: params,
+  };
   const res = {
-    json: jasmine.createSpy("json"),
     status: jasmine.createSpy("status").and.returnValue({
       json: jasmine.createSpy("json"),
+      send: jasmine.createSpy("send"),
     }),
+    json: jasmine.createSpy("json"),
+    send: jasmine.createSpy("send"),
+    setHeader: jasmine.createSpy("setHeader"),
   };
   return { req, res };
 }
