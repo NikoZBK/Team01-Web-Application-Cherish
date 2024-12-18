@@ -1,0 +1,164 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.page-header {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 20px;
+  background-color: #ccc;
+  padding: 10px;
+  letter-spacing: 3px;
+  border-radius: 8px;
+  position: absolute; /* Anchor to the top */
+  top: 0; /* Position at the top */
+  width: 100%; /* Ensure it takes up the full width of the app */
+  z-index: 1; /* Ensure it stays above other content */
+  color: white; /* Default text color */
+  filter: brightness(1.2); /* Increase brightness to make the color lighter */
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.9); /* Subtle black border around the text */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: #2320c2ab;
+  overflow: hidden; /* Ensure content does not overflow the viewport */
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Center the content vertically and horizontally */
+  width: 100%;
+  max-width: 800px; /* Set a maximum width for the app */
+  height: 90%; /* Ensure the app takes up the full height of the viewport */
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden; /* Ensure content does not overflow the container */
+  position: relative; /* Set position to relative to position the nav inside it */
+}
+
+.page-name-header {
+  background-color: #c7cfc7; /* Base color, change as needed in page's respective CSS file */
+  color: black;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  text-align: center;
+  width: 100%; /* Ensure the header takes up the full width */
+}
+
+.views {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Ensure the views take up the full width of the app */
+  height: calc(
+    100% - 60px
+  ); /* Ensure the views take up the full height of the app minus the header and nav */
+  flex-grow: 1; /* Allow the views to grow and fill the available space */
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  padding: 20px; /* Add padding if needed */
+  box-sizing: border-box; /* Include padding in the element's total width and height */
+}
+
+/* Nav Button Styles */
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  border: none;
+  border-radius: 8px;
+  background-color: #f0f0f0; /* Temporary background color for visibility */
+  padding: 0.5rem; /* Reduce padding */
+  width: 100%; /* Maintain the same width as the app */
+  position: absolute; /* Position the nav at the bottom */
+  bottom: 0; /* Anchor the nav to the bottom */
+  height: 60px; /* Set a fixed height */
+}
+
+#toCalendarPage {
+  background-color: blueviolet;
+}
+
+#toCheckInPage {
+  background-color: green;
+}
+
+#toJournalPage {
+  background-color: blue;
+}
+
+#toDayPage {
+  background-color: orange;
+}
+
+#toSummaryPage {
+  background-color: gray;
+}
+
+.nav-btns {
+  display: flex;
+  gap: 1rem; /* Increase gap between the buttons */
+  flex: 1; /* Allow buttons to grow and fill the available space */
+  border: none;
+  max-width: 19%;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  text-shadow: 0.07em 0 black, 0 0.07em black, -0.07em 0 black, 0 -0.07em black;
+  font-family: "Brush Script MT", cursive;
+  font-size: 1.2rem; /* Increase font size */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem; /* Increase padding */
+}
+
+.nav-btns:hover {
+  transform: scale(1.05);
+  background-color: #d45b5b; /* Darken color on hover */
+  color: #f8f9fa; /* Lighten text color */
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1200px) {
+  .app {
+    max-width: 1000px;
+  }
+  .nav-btns {
+    font-size: 1.1rem; /* Adjust font size for smaller screens */
+  }
+}
+
+@media (max-width: 800px) {
+  .app {
+    max-width: 800px;
+  }
+  .nav-btns {
+    font-size: 1rem; /* Adjust font size for smaller screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    max-width: 600px;
+  }
+  .nav-btns {
+    font-size: 0.9rem; /* Adjust font size for smaller screens */
+  }
+}
