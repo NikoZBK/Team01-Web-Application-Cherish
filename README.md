@@ -9,7 +9,20 @@ In this README file, you will find a summary of what the Cherish App is all abou
 2. Once its cloned, make sure you are in the main branch. Open up a terminal and run `npm install`.
 3. Once the node files have been installed (this also installs the back end in `back-end/`; Node 22.7 or newer is required), run `npm run start-server` to run the API server on port 3000.
 4. In a second terminal, run `npm run start-client` and visit `http://localhost:5173`. It serves the front end and forwards `/api` requests to the API server, so the browser sees both on one origin.
-5. There is no default account: enter an email and a password of at least 12 characters and press **Sign Up**.
+5. There is no default account: choose **Create an account** and enter an email and a password of at least 12 characters.
+
+The front end (`front-end/src`) is plain HTML, CSS and JavaScript modules with no build step and no dependencies:
+
+```
+front-end/src/
+  index.html, styles.css
+  app.js        entry point: restores the session, routes by URL hash
+  api/          HTTP client (sign-in, token refresh) and the days endpoints
+  domain/       dates, emotions and ratings, streaks and trends, CSV export; no DOM, no network
+  ui/           DOM helpers
+  views/        one file per screen: login, calendar, day, insights, account
+front-end/tests/  unit tests for domain/ (`npm test`)
+```
 
 By default the back end keeps data in memory, so it is lost when the server restarts. To keep it, copy `back-end/.env.example` to `back-end/.env` and set `PERSISTENCE_DRIVER=postgres` and `DATABASE_URL`. See [back-end/README.md](back-end/README.md) for the API, its security model and its tests (`npm run test-server`).
 

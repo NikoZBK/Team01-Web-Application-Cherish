@@ -1,18 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="module" src="./main.js" defer></script>
-    <script type="module" src="./nav/nav.js" defer></script>
-    <link rel="stylesheet" href="./stylesBase.css" />
-    <title>Cherish Calendar</title>
+    <meta name="color-scheme" content="light dark" />
+    <title>Cherish</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
   </head>
   <body>
-    <div class="app">
-      <div class="page-header">Header</div>
-      <div id="views"></div>
-      <div class="nav" style="display: flex"></div>
-    </div>
+    <div id="app"><p class="loading">Loading…</p></div>
+    <noscript>Cherish needs JavaScript to run.</noscript>
   </body>
 </html>
