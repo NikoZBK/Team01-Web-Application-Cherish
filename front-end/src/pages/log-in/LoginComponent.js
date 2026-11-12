@@ -12,10 +12,10 @@ export class LoginComponent extends BaseComponent {
     return `
       <div class="login-container">
         <h2>Login</h2>
-        <h3 id="login-error">Enter Username and Password</h3>
+        <h3 id="login-error">Enter Email and Password</h3>
         <form id="login-form">
-          <input type="text" id="username" placeholder="Username" required />
-          <input type="password" id="password" placeholder="Password" required />
+          <input type="email" id="username" placeholder="Email" autocomplete="username" required />
+          <input type="password" id="password" placeholder="Password (12+ characters)" autocomplete="current-password" required />
           <button type="submit">Log In</button>
         </form>
         <button id="signup-button" class="secondary-btn">Sign Up</button>
@@ -32,7 +32,7 @@ export class LoginComponent extends BaseComponent {
       event.preventDefault();
 
       const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
+      const password = document.getElementById("password").value;
 
       try {
         const userData = await DATABASE.loginUser(username, password);
@@ -41,21 +41,28 @@ export class LoginComponent extends BaseComponent {
         this.update(Events.LoginSuccess, userData); // Notify other components of login success  
 
       } catch (error) {
-        document.getElementById("login-error").textContent = "Invalid username or password";
+        loginError.textContent = this._errorMessage(error, "Invalid email or password");
       } 
     });
 
     signup.addEventListener("click", async() => {
       const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!loginForm.reportValidity()) return;
+      if (password.length < 12) {
+        loginError.textContent = "Password must be at least 12 characters";
+        return;
+      }
 
       try {
+        // Creating an account also signs you in
         const userData = await DATABASE.registerUser(username, password);
         if (!userData) return;
 
-        document.getElementById("login-error").textContent = "Account created";
+        this.update(Events.LoginSuccess, userData);
       } catch (error) {
-        document.getElementById("login-error").textContent = "Couldn't register account";
+        loginError.textContent = this._errorMessage(error, "Couldn't register account");
       }
 
       
@@ -64,9 +71,18 @@ export class LoginComponent extends BaseComponent {
   
   }
 
-  _validateCredentials(username, password) {
-    // Example validation logic (replace with actual logic)
-    return username === "user" && password === "pass";
+  // Picks the text to show for a failed request
+  _errorMessage(error, fallback) {
+    switch (error.problem?.status) {
+      case 401:
+        return "Invalid email or password";
+      case 409:
+        return "An account with this email already exists";
+      case 429:
+        return "Too many attempts. Try again in a minute";
+      default:
+        return fallback;
+    }
   }
 
   // Render the login component

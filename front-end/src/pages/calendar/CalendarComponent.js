@@ -60,6 +60,9 @@ export class CalendarComponent extends BaseComponent {
       this.displayQuote(quoteData.quote, quoteData.author);
       this.update(Events.LoadQuoteSuccess, { quote: quoteData.quote, author: quoteData.author });
     } else {
+      // The quote API key was removed from the repo; without one there is no quote to fetch
+      if (typeof API_KEY === "undefined") return;
+
       // Fetch a new quote
       this.update(Events.LoadQuote);
   

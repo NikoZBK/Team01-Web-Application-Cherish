@@ -5,22 +5,19 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "start-server": "node back-end/src/Server.js",
-    "start-client": "http-server front-end/src -p 3000",
-    "test": "jasmine"
+    "postinstall": "npm --prefix back-end install",
+    "start-server": "npm --prefix back-end start",
+    "start-client": "http-server front-end/src -a localhost -p 5173 -c-1 --proxy http://127.0.0.1:3000",
+    "test": "jasmine",
+    "test-server": "npm --prefix back-end test"
   },
   "license": "COMPSCI 326",
   "description": "The Cherish App",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "bcrypt": "^5.1.1",
-    "cherish-app": "file:",
-    "express": "^5.0.1",
     "fake-indexeddb": "^6.0.0",
     "http-server": "^14.1.1",
-    "json2csv": "^6.0.0-alpha.2",
-    "sequelize": "^6.37.5",
-    "sqlite3": "^5.1.7"
+    "json2csv": "^6.0.0-alpha.2"
   },
   "overrides": {
     "karma-jasmine": {

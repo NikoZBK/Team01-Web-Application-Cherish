@@ -100,7 +100,7 @@ class GeminiService extends Service {
         // Need to fetch the period's data with remote service
         try {
           const response = await this.getData(this.period);
-          data = JSON.stringify(response.data);
+          data = JSON.stringify(response);
         } catch (e) {
           debugLog(e, "ERROR");
           throw new Error("Failed to fetch data");

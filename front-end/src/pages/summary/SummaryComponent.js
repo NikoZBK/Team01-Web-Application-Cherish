@@ -16,8 +16,8 @@ export class SummaryComponent extends BaseComponent {
       Most frequent emotion, Average daily rating over that date range, Count of each emotion selected over that range, Longest streak of a given emotion
    * @returns an object containing mostFrequentEmotion, averageRating, emotionCounts, and longestStreak
    */
-  #calculateTrendData(startDate, endDate) {
-    const userData = DATABASE.restoreUserData(); //get the user data
+  async #calculateTrendData(startDate, endDate) {
+    const userData = await DATABASE.restoreUserData(); //get the user data
 
     //filter out data according to user-selected range
     const filteredData = Object.values(userData).filter((day) => {
@@ -57,12 +57,13 @@ export class SummaryComponent extends BaseComponent {
       longestStreak = { ...currentStreak };
     }
 
-    const mostFrequentEmotion = Object.keys(emotionCounts).reduce((acc, curr) =>
-      emotionCounts[acc] > emotionCounts[curr] ? acc : curr
+    const mostFrequentEmotion = Object.keys(emotionCounts).reduce(
+      (acc, curr) => (emotionCounts[acc] > emotionCounts[curr] ? acc : curr),
+      null
     );
     return {
       mostFrequentEmotion,
-      averageRating: totalRating / totalDays,
+      averageRating: totalDays ? totalRating / totalDays : 0,
       emotionCounts,
       longestStreak,
     };
@@ -205,11 +206,11 @@ export class SummaryComponent extends BaseComponent {
 
     this.exportCsvBtn.addEventListener("click", () => this.#exportCSV());
 
-    this.calculateTrendBtn.addEventListener("click", () => {
+    this.calculateTrendBtn.addEventListener("click", async () => {
       const startDate = this.startDateInput.value;
       const endDate = this.endDateInput.value;
       if (startDate && endDate) {
-        const trendData = this.#calculateTrendData(startDate, endDate);
+        const trendData = await this.#calculateTrendData(startDate, endDate);
         this.#displayTrendData(trendData);
       } else {
         alert("Please select both start and end dates.");

@@ -7,7 +7,11 @@ In this README file, you will find a summary of what the Cherish App is all abou
 
 1. Clone the github repo into your VS code.
 2. Once its cloned, make sure you are in the main branch. Open up a terminal and run `npm install`.
-3. Once the node files have been installed, run `npm run start-server` to run the server. Then open a browser window and visit `localhost:3000`. The default username is `user` and the default password is `pass`. 
+3. Once the node files have been installed (this also installs the back end in `back-end/`; Node 22.7 or newer is required), run `npm run start-server` to run the API server on port 3000.
+4. In a second terminal, run `npm run start-client` and visit `http://localhost:5173`. It serves the front end and forwards `/api` requests to the API server, so the browser sees both on one origin.
+5. There is no default account: enter an email and a password of at least 12 characters and press **Sign Up**.
+
+By default the back end keeps data in memory, so it is lost when the server restarts. To keep it, copy `back-end/.env.example` to `back-end/.env` and set `PERSISTENCE_DRIVER=postgres` and `DATABASE_URL`. See [back-end/README.md](back-end/README.md) for the API, its security model and its tests (`npm run test-server`).
 
 ## Milestone 1
 
